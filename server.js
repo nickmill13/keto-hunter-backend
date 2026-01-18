@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 require('dotenv').config();
+const { initDatabase, saveReview, getReviews, getReviewCount } = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -72,11 +73,34 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
 // Submit review endpoint
 app.post('/api/submit-review', async (req, res) => {
   try {
-    const { restaurantId, rating, ketoRating, comment, menuItems, userName } = req.body;
-    console.log('Review submitted:', { restaurantId, userName, ketoRating });
-    res.json({ success: true, message: 'Review submitted!' });
+    const { restaurantId, restaurantName, rating, ketoRating, comment, menuItems, userName } = req.body;
+    
+    const review = await saveReview({
+      restaurantId,
+      restaurantName,
+      userName,
+      rating,
+      ketoRating,
+      comment,
+      menuItems
+    });
+    
+    console.log('Review saved to database:', review.id);
+    res.json({ success: true, message: 'Review submitted!', review });
   } catch (error) {
+    console.error('Error submitting review:', error);
     res.status(500).json({ error: 'Failed to submit review' });
+  }
+});
+
+// Get reviews for a restaurant
+app.get('/api/reviews/:restaurantId', async (req, res) => {
+  try {
+    const reviews = await getReviews(req.params.restaurantId);
+    res.json({ reviews });
+  } catch (error) {
+    console.error('Error fetching reviews:', error);
+    res.status(500).json({ error: 'Failed to fetch reviews' });
   }
 });
 
@@ -153,6 +177,12 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   return (R * c).toFixed(1);
 }
+// Initialize database on startup
+initDatabase();
+
+app.listen(PORT, () => {
+  console.log(`Keto Hunter API running on port ${PORT}`);
+});
 
 app.listen(PORT, () => {
   console.log(`Keto Hunter API running on port ${PORT}`);
