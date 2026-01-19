@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 require('dotenv').config();
-const { initDatabase, saveReview, getReviews, getReviewCount } = require('./database');
+const { initDatabase, saveReview, getReviews } = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -20,7 +20,6 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
   try {
     const { latitude, longitude, radius = 5000 } = req.body;
     
-    // Call Google Places API (New)
     const response = await axios.post(
       'https://places.googleapis.com/v1/places:searchNearby',
       {
@@ -168,7 +167,7 @@ function getKetoOptions(types) {
 }
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
-  const R = 3959; // miles
+  const R = 3959;
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLon = (lon2 - lon1) * Math.PI / 180;
   const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
@@ -177,12 +176,9 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   return (R * c).toFixed(1);
 }
+
 // Initialize database on startup
 initDatabase();
-
-app.listen(PORT, () => {
-  console.log(`Keto Hunter API running on port ${PORT}`);
-});
 
 app.listen(PORT, () => {
   console.log(`Keto Hunter API running on port ${PORT}`);
