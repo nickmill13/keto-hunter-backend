@@ -14,7 +14,6 @@ try {
 } catch (error) {
   console.error('FAILED TO LOAD DATABASE MODULE:', error);
 }
-const { initDatabase, saveReview, getReviews } = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
