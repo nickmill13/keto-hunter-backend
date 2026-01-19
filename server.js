@@ -3,16 +3,26 @@ const cors = require('cors');
 const axios = require('axios');
 require('dotenv').config();
 
+console.log('=== STARTUP DIAGNOSTICS ===');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('PORT:', process.env.PORT);
+console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
+console.log('DATABASE_URL length:', process.env.DATABASE_URL?.length || 0);
+console.log('GOOGLE_PLACES_API_KEY exists:', !!process.env.GOOGLE_PLACES_API_KEY);
+
 // Try to load database with error handling
 let initDatabase, saveReview, getReviews;
 try {
+  console.log('Attempting to load database module...');
   const db = require('./database');
   initDatabase = db.initDatabase;
   saveReview = db.saveReview;
   getReviews = db.getReviews;
-  console.log('Database module loaded successfully');
+  console.log('✅ Database module loaded successfully');
 } catch (error) {
-  console.error('FAILED TO LOAD DATABASE MODULE:', error);
+  console.error('❌ FAILED TO LOAD DATABASE MODULE:');
+  console.error('Error message:', error.message);
+  console.error('Error stack:', error.stack);
 }
 
 const app = express();
@@ -23,7 +33,11 @@ app.use(express.json());
 
 // Health check
 app.get('/', (req, res) => {
-  res.json({ status: 'Keto Hunter API is running!' });
+  res.json({ 
+    status: 'Keto Hunter API is running!',
+    database: !!saveReview ? 'connected' : 'NOT CONNECTED - check logs',
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Search for keto-friendly restaurants
@@ -83,34 +97,59 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
 // Submit review endpoint
 app.post('/api/submit-review', async (req, res) => {
   try {
+    console.log('=== REVIEW SUBMISSION STARTED ===');
+    console.log('Request body:', req.body);
+    
+    if (!saveReview) {
+      console.error('❌ ERROR: saveReview function is not available!');
+      console.error('This means the database module failed to load.');
+      console.error('Check the startup logs for "FAILED TO LOAD DATABASE MODULE"');
+      return res.status(500).json({ 
+        error: 'Database not initialized. The database module failed to load - check server logs.',
+        hint: 'Make sure DATABASE_URL is set in Railway variables'
+      });
+    }
+    
     const { restaurantId, restaurantName, rating, ketoRating, comment, menuItems, userName } = req.body;
     
+    console.log('Attempting to save review to database...');
     const review = await saveReview({
       restaurantId,
       restaurantName,
-      userName,
+      userName: userName || 'Anonymous',
       rating,
       ketoRating,
       comment,
       menuItems
     });
     
-    console.log('Review saved to database:', review.id);
-    res.json({ success: true, message: 'Review submitted!', review });
+    console.log('✅ Review saved successfully! Review ID:', review.id);
+    res.json({ success: true, message: 'Review submitted successfully!', review });
   } catch (error) {
-    console.error('Error submitting review:', error);
-    res.status(500).json({ error: 'Failed to submit review' });
+    console.error('❌ Error submitting review:', error);
+    console.error('Error details:', error.message);
+    res.status(500).json({ 
+      error: 'Failed to submit review', 
+      details: error.message 
+    });
   }
 });
 
 // Get reviews for a restaurant
 app.get('/api/reviews/:restaurantId', async (req, res) => {
   try {
+    if (!getReviews) {
+      return res.status(500).json({ 
+        error: 'Database not initialized',
+        reviews: []
+      });
+    }
+    
     const reviews = await getReviews(req.params.restaurantId);
     res.json({ reviews });
   } catch (error) {
     console.error('Error fetching reviews:', error);
-    res.status(500).json({ error: 'Failed to fetch reviews' });
+    res.status(500).json({ error: 'Failed to fetch reviews', reviews: [] });
   }
 });
 
@@ -189,8 +228,15 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 }
 
 // Initialize database on startup
-initDatabase();
+if (initDatabase) {
+  initDatabase()
+    .then(() => console.log('✅ Database tables initialized'))
+    .catch(err => console.error('❌ Database initialization error:', err));
+} else {
+  console.error('❌ Cannot initialize database - initDatabase function not available');
+}
 
 app.listen(PORT, () => {
-  console.log(`Keto Hunter API running on port ${PORT}`);
+  console.log(`🚀 Keto Hunter API running on port ${PORT}`);
+  console.log(`Database status: ${saveReview ? '✅ Connected' : '❌ Not Connected'}`);
 });
