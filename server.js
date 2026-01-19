@@ -2,6 +2,18 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 require('dotenv').config();
+
+// Try to load database with error handling
+let initDatabase, saveReview, getReviews;
+try {
+  const db = require('./database');
+  initDatabase = db.initDatabase;
+  saveReview = db.saveReview;
+  getReviews = db.getReviews;
+  console.log('Database module loaded successfully');
+} catch (error) {
+  console.error('FAILED TO LOAD DATABASE MODULE:', error);
+}
 const { initDatabase, saveReview, getReviews } = require('./database');
 
 const app = express();
