@@ -137,9 +137,9 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
         place.location.latitude, 
         place.location.longitude),
       ketoScore: calculateKetoScore(place),
-      ketoOptions: getKetoOptions(place.types || []),
+      ketoOptions: [], // Now populated from user reviews
       diningOptions: getDiningOptions(place),
-      ketoReviews: Math.floor(Math.random() * 50) + 10
+      ketoReviews: 0 // Will be fetched from database
     }));
 
     // Filter out low keto scores and sort by score (highest first)
@@ -201,15 +201,35 @@ app.get('/api/reviews/:restaurantId', async (req, res) => {
     if (!getReviews) {
       return res.status(500).json({ 
         error: 'Database not initialized',
-        reviews: []
+        reviews: [],
+        ketoItems: []
       });
     }
     
     const reviews = await getReviews(req.params.restaurantId);
-    res.json({ reviews });
+    
+    // Aggregate unique keto items from all reviews
+    const ketoItemsSet = new Set();
+    reviews.forEach(review => {
+      if (review.menu_items) {
+        // Split by comma and clean up each item
+        review.menu_items.split(',').forEach(item => {
+          const cleaned = item.trim();
+          if (cleaned) {
+            ketoItemsSet.add(cleaned);
+          }
+        });
+      }
+    });
+    
+    res.json({ 
+      reviews,
+      ketoItems: Array.from(ketoItemsSet),
+      reviewCount: reviews.length
+    });
   } catch (error) {
     console.error('Error fetching reviews:', error);
-    res.status(500).json({ error: 'Failed to fetch reviews', reviews: [] });
+    res.status(500).json({ error: 'Failed to fetch reviews', reviews: [], ketoItems: [] });
   }
 });
 
@@ -295,33 +315,7 @@ function getCuisineType(types) {
   return 'American';
 }
 
-function getKetoOptions(types) {
-  const typeStr = types.join(' ').toLowerCase();
-  
-  if (typeStr.includes('steak')) {
-    return ['Ribeye Steak', 'Filet Mignon', 'Caesar Salad', 'Grilled Asparagus'];
-  }
-  if (typeStr.includes('seafood')) {
-    return ['Grilled Salmon', 'Shrimp Scampi (no pasta)', 'Lobster Tail', 'Crab Legs'];
-  }
-  if (typeStr.includes('barbecue')) {
-    return ['Smoked Brisket', 'Pulled Pork (no bun)', 'Ribs (dry rub)', 'Smoked Wings'];
-  }
-  if (typeStr.includes('mexican')) {
-    return ['Carne Asada', 'Fajitas (no tortilla)', 'Carnitas Bowl', 'Guacamole'];
-  }
-  if (typeStr.includes('mediterranean') || typeStr.includes('greek')) {
-    return ['Greek Salad', 'Lamb Chops', 'Grilled Chicken', 'Tzatziki'];
-  }
-  if (typeStr.includes('brazilian')) {
-    return ['Picanha', 'Grilled Meats', 'Bacon-Wrapped Chicken', 'Churasco'];
-  }
-  if (typeStr.includes('japanese')) {
-    return ['Sashimi', 'Grilled Fish', 'Beef Negimaki', 'Edamame'];
-  }
-  
-  return ['Grilled Protein', 'House Salad', 'Steamed Vegetables', 'Bunless Burger'];
-}
+// Keto options now come from user reviews - see /api/reviews/:restaurantId
 
 function getDiningOptions(place) {
   // Default options - in a full implementation you'd check place details
