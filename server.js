@@ -40,16 +40,71 @@ app.get('/', (req, res) => {
   });
 });
 
+// Geocode an address to lat/lng
+app.post('/api/geocode', async (req, res) => {
+  try {
+    const { address } = req.body;
+    
+    if (!address) {
+      return res.status(400).json({ error: 'Address is required' });
+    }
+
+    const response = await axios.get(
+      'https://maps.googleapis.com/maps/api/geocode/json',
+      {
+        params: {
+          address: address,
+          key: process.env.GOOGLE_PLACES_API_KEY
+        }
+      }
+    );
+
+    if (response.data.results && response.data.results.length > 0) {
+      const location = response.data.results[0].geometry.location;
+      const formattedAddress = response.data.results[0].formatted_address;
+      
+      res.json({
+        success: true,
+        latitude: location.lat,
+        longitude: location.lng,
+        formattedAddress: formattedAddress
+      });
+    } else {
+      res.status(404).json({ 
+        error: 'Location not found. Try a more specific address.',
+        success: false 
+      });
+    }
+  } catch (error) {
+    console.error('Geocoding error:', error.message);
+    res.status(500).json({ error: 'Failed to geocode address', success: false });
+  }
+});
+
 // Search for keto-friendly restaurants
 app.post('/api/search-keto-restaurants', async (req, res) => {
   try {
-    const { latitude, longitude, radius = 5000 } = req.body;
+    const { latitude, longitude, radius = 8000 } = req.body;
     
+    // Keto-friendly restaurant types to search for
+    const ketoFriendlyTypes = [
+      'steak_house',
+      'seafood_restaurant', 
+      'american_restaurant',
+      'barbecue_restaurant',
+      'mediterranean_restaurant',
+      'mexican_restaurant',
+      'brazilian_restaurant',
+      'greek_restaurant'
+    ];
+
+    // Search for keto-friendly types specifically
     const response = await axios.post(
       'https://places.googleapis.com/v1/places:searchNearby',
       {
-        includedTypes: ['restaurant'],
+        includedTypes: ketoFriendlyTypes,
         maxResultCount: 20,
+        rankPreference: 'DISTANCE',
         locationRestriction: {
           circle: {
             center: {
@@ -69,7 +124,9 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
       }
     );
 
-    const restaurants = response.data.places.map(place => ({
+    const places = response.data.places || [];
+    
+    const restaurants = places.map(place => ({
       id: place.id,
       name: place.displayName?.text || 'Unknown',
       address: place.formattedAddress || 'Address not available',
@@ -81,11 +138,14 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
         place.location.longitude),
       ketoScore: calculateKetoScore(place),
       ketoOptions: getKetoOptions(place.types || []),
-      diningOptions: ['Dine-in', 'Takeout'],
+      diningOptions: getDiningOptions(place),
       ketoReviews: Math.floor(Math.random() * 50) + 10
     }));
 
-    const ketoFriendly = restaurants.filter(r => r.ketoScore > 0.4);
+    // Filter out low keto scores and sort by score (highest first)
+    const ketoFriendly = restaurants
+      .filter(r => r.ketoScore >= 0.5)
+      .sort((a, b) => b.ketoScore - a.ketoScore);
 
     res.json({ restaurants: ketoFriendly });
   } catch (error) {
@@ -166,21 +226,48 @@ function getPriceLevel(priceLevel) {
 }
 
 function calculateKetoScore(place) {
-  let score = 0.5;
+  let score = 0.6; // Start with decent base since we're searching keto-friendly types
   
   const name = (place.displayName?.text || '').toLowerCase();
   const types = (place.types || []).join(' ').toLowerCase();
   
-  if (name.includes('grill') || name.includes('steak') || name.includes('bbq')) score += 0.3;
-  if (types.includes('steak')) score += 0.4;
-  if (types.includes('seafood')) score += 0.3;
-  if (types.includes('mediterranean')) score += 0.2;
-  if (types.includes('mexican')) score += 0.1;
+  // BOOST: Keto-friendly indicators
+  if (name.includes('grill') || name.includes('grille')) score += 0.2;
+  if (name.includes('steak') || name.includes('steakhouse')) score += 0.3;
+  if (name.includes('bbq') || name.includes('barbecue') || name.includes('smokehouse')) score += 0.25;
+  if (name.includes('seafood') || name.includes('fish')) score += 0.2;
+  if (name.includes('meat') || name.includes('butcher')) score += 0.2;
+  if (name.includes('salad')) score += 0.15;
+  if (name.includes('protein') || name.includes('fit') || name.includes('healthy')) score += 0.2;
   
-  if (types.includes('bakery') || types.includes('dessert')) score -= 0.3;
-  if (name.includes('pizza') || name.includes('pasta')) score -= 0.2;
+  // Type-based boosts
+  if (types.includes('steak_house')) score += 0.3;
+  if (types.includes('seafood_restaurant')) score += 0.25;
+  if (types.includes('barbecue_restaurant')) score += 0.25;
+  if (types.includes('brazilian_restaurant')) score += 0.2; // Churrascarias are great for keto
+  if (types.includes('mediterranean_restaurant')) score += 0.15;
+  if (types.includes('greek_restaurant')) score += 0.15;
   
-  return Math.max(0.3, Math.min(1.0, score));
+  // PENALIZE: Non-keto indicators
+  if (name.includes('pizza')) score -= 0.4;
+  if (name.includes('pasta') || name.includes('noodle')) score -= 0.35;
+  if (name.includes('bakery') || name.includes('bread')) score -= 0.4;
+  if (name.includes('donut') || name.includes('doughnut')) score -= 0.5;
+  if (name.includes('ice cream') || name.includes('frozen yogurt')) score -= 0.4;
+  if (name.includes('pancake') || name.includes('waffle')) score -= 0.4;
+  if (name.includes('buffet')) score -= 0.2; // Buffets are mixed
+  if (name.includes('casino')) score -= 0.3;
+  if (name.includes('cafe') && !name.includes('grill')) score -= 0.1;
+  
+  // Type-based penalties
+  if (types.includes('bakery')) score -= 0.35;
+  if (types.includes('dessert_shop')) score -= 0.3;
+  if (types.includes('ice_cream_shop')) score -= 0.4;
+  if (types.includes('pizza_restaurant')) score -= 0.35;
+  if (types.includes('fast_food_restaurant')) score -= 0.15;
+  
+  // Clamp between 0.2 and 1.0
+  return Math.max(0.2, Math.min(1.0, score));
 }
 
 function getCuisineType(types) {
@@ -189,35 +276,60 @@ function getCuisineType(types) {
     'seafood_restaurant': 'Seafood',
     'mexican_restaurant': 'Mexican',
     'mediterranean_restaurant': 'Mediterranean',
+    'greek_restaurant': 'Greek',
     'american_restaurant': 'American',
     'italian_restaurant': 'Italian',
-    'japanese_restaurant': 'Asian',
-    'chinese_restaurant': 'Asian',
+    'japanese_restaurant': 'Japanese',
+    'chinese_restaurant': 'Chinese',
     'indian_restaurant': 'Indian',
     'thai_restaurant': 'Thai',
     'barbecue_restaurant': 'BBQ',
-    'bar': 'Bar & Grill'
+    'brazilian_restaurant': 'Brazilian',
+    'bar': 'Bar & Grill',
+    'sports_bar': 'Sports Bar'
   };
   
   for (const type of types) {
     if (cuisineMap[type]) return cuisineMap[type];
   }
-  return 'Restaurant';
+  return 'American';
 }
 
 function getKetoOptions(types) {
   const typeStr = types.join(' ').toLowerCase();
   
-  if (typeStr.includes('steak')) return ['Grilled Steak', 'Caesar Salad', 'Roasted Vegetables'];
-  if (typeStr.includes('seafood')) return ['Grilled Fish', 'Shrimp', 'Lobster'];
-  if (typeStr.includes('mexican')) return ['Burrito Bowl (no rice)', 'Fajitas', 'Carnitas'];
-  if (typeStr.includes('mediterranean')) return ['Greek Salad', 'Grilled Chicken', 'Lamb'];
+  if (typeStr.includes('steak')) {
+    return ['Ribeye Steak', 'Filet Mignon', 'Caesar Salad', 'Grilled Asparagus'];
+  }
+  if (typeStr.includes('seafood')) {
+    return ['Grilled Salmon', 'Shrimp Scampi (no pasta)', 'Lobster Tail', 'Crab Legs'];
+  }
+  if (typeStr.includes('barbecue')) {
+    return ['Smoked Brisket', 'Pulled Pork (no bun)', 'Ribs (dry rub)', 'Smoked Wings'];
+  }
+  if (typeStr.includes('mexican')) {
+    return ['Carne Asada', 'Fajitas (no tortilla)', 'Carnitas Bowl', 'Guacamole'];
+  }
+  if (typeStr.includes('mediterranean') || typeStr.includes('greek')) {
+    return ['Greek Salad', 'Lamb Chops', 'Grilled Chicken', 'Tzatziki'];
+  }
+  if (typeStr.includes('brazilian')) {
+    return ['Picanha', 'Grilled Meats', 'Bacon-Wrapped Chicken', 'Churasco'];
+  }
+  if (typeStr.includes('japanese')) {
+    return ['Sashimi', 'Grilled Fish', 'Beef Negimaki', 'Edamame'];
+  }
   
-  return ['Salads', 'Grilled Protein', 'Vegetables'];
+  return ['Grilled Protein', 'House Salad', 'Steamed Vegetables', 'Bunless Burger'];
+}
+
+function getDiningOptions(place) {
+  // Default options - in a full implementation you'd check place details
+  return ['Dine-in', 'Takeout'];
 }
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
-  const R = 3959;
+  const R = 3959; // Earth's radius in miles
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLon = (lon2 - lon1) * Math.PI / 180;
   const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
