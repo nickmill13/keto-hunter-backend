@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
+const OpenAI = require('openai');
 require('dotenv').config();
 
 console.log('=== STARTUP DIAGNOSTICS ===');
@@ -9,6 +10,18 @@ console.log('PORT:', process.env.PORT);
 console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
 console.log('DATABASE_URL length:', process.env.DATABASE_URL?.length || 0);
 console.log('GOOGLE_PLACES_API_KEY exists:', !!process.env.GOOGLE_PLACES_API_KEY);
+console.log('OPENAI_API_KEY exists:', !!process.env.OPENAI_API_KEY);
+
+// Initialize OpenAI client
+let openai = null;
+if (process.env.OPENAI_API_KEY) {
+  openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+  });
+  console.log('✅ OpenAI client initialized');
+} else {
+  console.log('⚠️ OpenAI API key not found - AI suggestions will be disabled');
+}
 
 // Try to load database with error handling
 let initDatabase, saveReview, getReviews;
@@ -232,6 +245,89 @@ app.get('/api/reviews/:restaurantId', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch reviews', reviews: [], ketoItems: [] });
   }
 });
+
+// Get AI-suggested keto items for a restaurant
+app.post('/api/ai-suggestions', async (req, res) => {
+  try {
+    const { restaurantName, cuisine } = req.body;
+    
+    if (!openai) {
+      // Fallback to basic suggestions if OpenAI is not configured
+      const fallbackSuggestions = getBasicKetoSuggestions(cuisine);
+      return res.json({ 
+        suggestions: fallbackSuggestions,
+        isAI: false,
+        message: 'Basic suggestions (AI not configured)'
+      });
+    }
+    
+    const prompt = `You are a keto diet expert. For the restaurant "${restaurantName}" which serves ${cuisine} cuisine, suggest 4-5 specific menu items that are likely to be keto-friendly (low carb, high fat/protein).
+
+Rules:
+- Be specific to the cuisine type
+- Include modifications if needed (e.g., "without the bun", "no rice")
+- Keep each item name short (2-5 words)
+- Only suggest realistic items for this cuisine type
+
+Respond with ONLY a JSON array of strings, nothing else. Example: ["Grilled Ribeye Steak", "Caesar Salad (no croutons)", "Sautéed Spinach"]`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 150,
+      temperature: 0.7
+    });
+    
+    const responseText = completion.choices[0].message.content.trim();
+    
+    // Parse the JSON array from the response
+    let suggestions;
+    try {
+      suggestions = JSON.parse(responseText);
+    } catch (parseError) {
+      // If parsing fails, try to extract items manually
+      console.error('Failed to parse AI response:', responseText);
+      suggestions = getBasicKetoSuggestions(cuisine);
+    }
+    
+    res.json({ 
+      suggestions,
+      isAI: true,
+      message: 'AI-generated suggestions'
+    });
+    
+  } catch (error) {
+    console.error('Error getting AI suggestions:', error.message);
+    // Fallback to basic suggestions on error
+    const { cuisine } = req.body;
+    res.json({ 
+      suggestions: getBasicKetoSuggestions(cuisine),
+      isAI: false,
+      message: 'Fallback suggestions (AI error)'
+    });
+  }
+});
+
+// Basic keto suggestions by cuisine (fallback when AI is unavailable)
+function getBasicKetoSuggestions(cuisine) {
+  const suggestions = {
+    'Steakhouse': ['Ribeye Steak', 'Filet Mignon', 'Caesar Salad (no croutons)', 'Grilled Asparagus'],
+    'Seafood': ['Grilled Salmon', 'Shrimp Scampi (no pasta)', 'Lobster Tail', 'Steamed Crab Legs'],
+    'BBQ': ['Smoked Brisket (no sauce)', 'Pulled Pork (no bun)', 'Dry Rub Ribs', 'Smoked Wings'],
+    'Mexican': ['Carne Asada', 'Fajitas (no tortilla)', 'Carnitas Bowl (no rice)', 'Guacamole & Pork Rinds'],
+    'Mediterranean': ['Greek Salad', 'Lamb Chops', 'Grilled Chicken Souvlaki', 'Tzatziki with Veggies'],
+    'Greek': ['Greek Salad', 'Lamb Chops', 'Grilled Chicken Souvlaki', 'Tzatziki with Veggies'],
+    'Italian': ['Chicken Piccata (no pasta)', 'Antipasto Platter', 'Grilled Branzino', 'Caprese Salad'],
+    'American': ['Bunless Burger', 'Grilled Chicken Breast', 'Cobb Salad', 'Buffalo Wings'],
+    'Japanese': ['Sashimi Platter', 'Beef Negimaki', 'Edamame', 'Grilled Salmon Teriyaki (no rice)'],
+    'Chinese': ['Steamed Fish', 'Beef & Broccoli (no rice)', 'Egg Drop Soup', 'Peking Duck (no pancakes)'],
+    'Indian': ['Tandoori Chicken', 'Lamb Seekh Kebab', 'Paneer Tikka', 'Saag (no naan)'],
+    'Thai': ['Larb (meat salad)', 'Tom Yum Soup', 'Grilled Satay', 'Green Curry (no rice)'],
+    'Brazilian': ['Picanha', 'Grilled Chicken Hearts', 'Bacon-Wrapped Filet', 'Mixed Grilled Meats']
+  };
+  
+  return suggestions[cuisine] || ['Grilled Protein', 'House Salad (no croutons)', 'Steamed Vegetables', 'Bunless Burger'];
+}
 
 // Helper functions
 function getPriceLevel(priceLevel) {
