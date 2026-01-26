@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const OpenAI = require('openai');
+const { createClerkClient } = require('@clerk/backend');
 require('dotenv').config();
 
 console.log('=== STARTUP DIAGNOSTICS ===');
@@ -11,6 +12,16 @@ console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
 console.log('DATABASE_URL length:', process.env.DATABASE_URL?.length || 0);
 console.log('GOOGLE_PLACES_API_KEY exists:', !!process.env.GOOGLE_PLACES_API_KEY);
 console.log('OPENAI_API_KEY exists:', !!process.env.OPENAI_API_KEY);
+console.log('CLERK_SECRET_KEY exists:', !!process.env.CLERK_SECRET_KEY);
+
+// Initialize Clerk client
+let clerkClient = null;
+if (process.env.CLERK_SECRET_KEY) {
+  clerkClient = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
+  console.log('✅ Clerk client initialized');
+} else {
+  console.log('⚠️ Clerk secret key not found - auth verification disabled');
+}
 
 // Initialize OpenAI client
 let openai = null;
@@ -24,13 +35,16 @@ if (process.env.OPENAI_API_KEY) {
 }
 
 // Try to load database with error handling
-let initDatabase, saveReview, getReviews;
+let initDatabase, saveReview, getReviews, getUserReviews, deleteReview, updateReview;
 try {
   console.log('Attempting to load database module...');
   const db = require('./database');
   initDatabase = db.initDatabase;
   saveReview = db.saveReview;
   getReviews = db.getReviews;
+  getUserReviews = db.getUserReviews;
+  deleteReview = db.deleteReview;
+  updateReview = db.updateReview;
   console.log('✅ Database module loaded successfully');
 } catch (error) {
   console.error('❌ FAILED TO LOAD DATABASE MODULE:');
@@ -44,11 +58,37 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
+// Middleware to verify Clerk token and extract user ID
+async function requireAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
+  
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+  
+  if (!clerkClient) {
+    return res.status(500).json({ error: 'Auth service not configured' });
+  }
+  
+  const token = authHeader.split(' ')[1];
+  
+  try {
+    const { sub: userId } = await clerkClient.verifyToken(token);
+    req.userId = userId;
+    console.log('✅ Authenticated user:', userId);
+    next();
+  } catch (error) {
+    console.error('❌ Token verification failed:', error.message);
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
+}
+
 // Health check
 app.get('/', (req, res) => {
   res.json({ 
     status: 'Keto Hunter API is running!',
     database: !!saveReview ? 'connected' : 'NOT CONNECTED - check logs',
+    clerk: !!clerkClient ? 'configured' : 'NOT CONFIGURED',
     timestamp: new Date().toISOString()
   });
 });
@@ -99,7 +139,6 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
   try {
     const { latitude, longitude, radius = 8000 } = req.body;
     
-    // Keto-friendly restaurant types to search for
     const ketoFriendlyTypes = [
       'steak_house',
       'seafood_restaurant', 
@@ -111,7 +150,6 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
       'greek_restaurant'
     ];
 
-    // Search for keto-friendly types specifically
     const response = await axios.post(
       'https://places.googleapis.com/v1/places:searchNearby',
       {
@@ -150,12 +188,11 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
         place.location.latitude, 
         place.location.longitude),
       ketoScore: calculateKetoScore(place),
-      ketoOptions: [], // Now populated from user reviews
+      ketoOptions: [],
       diningOptions: getDiningOptions(place),
-      ketoReviews: 0 // Will be fetched from database
+      ketoReviews: 0
     }));
 
-    // Filter out low keto scores and sort by score (highest first)
     const ketoFriendly = restaurants
       .filter(r => r.ketoScore >= 0.5)
       .sort((a, b) => b.ketoScore - a.ketoScore);
@@ -167,16 +204,15 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
   }
 });
 
-// Submit review endpoint
-app.post('/api/submit-review', async (req, res) => {
+// Submit review endpoint - NOW REQUIRES AUTH
+app.post('/api/submit-review', requireAuth, async (req, res) => {
   try {
     console.log('=== REVIEW SUBMISSION STARTED ===');
+    console.log('User ID from token:', req.userId);
     console.log('Request body:', req.body);
     
     if (!saveReview) {
       console.error('❌ ERROR: saveReview function is not available!');
-      console.error('This means the database module failed to load.');
-      console.error('Check the startup logs for "FAILED TO LOAD DATABASE MODULE"');
       return res.status(500).json({ 
         error: 'Database not initialized. The database module failed to load - check server logs.',
         hint: 'Make sure DATABASE_URL is set in Railway variables'
@@ -193,10 +229,11 @@ app.post('/api/submit-review', async (req, res) => {
       rating,
       ketoRating,
       comment,
-      menuItems
+      menuItems,
+      userId: req.userId  // User ID from Clerk token
     });
     
-    console.log('✅ Review saved successfully! Review ID:', review.id);
+    console.log('✅ Review saved successfully! Review ID:', review.id, 'User ID:', review.user_id);
     res.json({ success: true, message: 'Review submitted successfully!', review });
   } catch (error) {
     console.error('❌ Error submitting review:', error);
@@ -208,7 +245,7 @@ app.post('/api/submit-review', async (req, res) => {
   }
 });
 
-// Get reviews for a restaurant
+// Get reviews for a restaurant (public - no auth required)
 app.get('/api/reviews/:restaurantId', async (req, res) => {
   try {
     if (!getReviews) {
@@ -221,11 +258,9 @@ app.get('/api/reviews/:restaurantId', async (req, res) => {
     
     const reviews = await getReviews(req.params.restaurantId);
     
-    // Aggregate unique keto items from all reviews
     const ketoItemsSet = new Set();
     reviews.forEach(review => {
       if (review.menu_items) {
-        // Split by comma and clean up each item
         review.menu_items.split(',').forEach(item => {
           const cleaned = item.trim();
           if (cleaned) {
@@ -246,13 +281,78 @@ app.get('/api/reviews/:restaurantId', async (req, res) => {
   }
 });
 
+// Get current user's reviews - REQUIRES AUTH
+app.get('/api/my-reviews', requireAuth, async (req, res) => {
+  try {
+    if (!getUserReviews) {
+      return res.status(500).json({ error: 'Database not initialized', reviews: [] });
+    }
+    
+    const reviews = await getUserReviews(req.userId);
+    console.log(`✅ Fetched ${reviews.length} reviews for user ${req.userId}`);
+    
+    res.json({ reviews, reviewCount: reviews.length });
+  } catch (error) {
+    console.error('Error fetching user reviews:', error);
+    res.status(500).json({ error: 'Failed to fetch your reviews', reviews: [] });
+  }
+});
+
+// Delete a review - REQUIRES AUTH
+app.delete('/api/reviews/:reviewId', requireAuth, async (req, res) => {
+  try {
+    if (!deleteReview) {
+      return res.status(500).json({ error: 'Database not initialized' });
+    }
+    
+    const deleted = await deleteReview(req.params.reviewId, req.userId);
+    
+    if (!deleted) {
+      return res.status(404).json({ error: 'Review not found or you do not have permission to delete it' });
+    }
+    
+    console.log(`✅ Review ${req.params.reviewId} deleted by user ${req.userId}`);
+    res.json({ success: true, message: 'Review deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting review:', error);
+    res.status(500).json({ error: 'Failed to delete review' });
+  }
+});
+
+// Update a review - REQUIRES AUTH
+app.put('/api/reviews/:reviewId', requireAuth, async (req, res) => {
+  try {
+    if (!updateReview) {
+      return res.status(500).json({ error: 'Database not initialized' });
+    }
+    
+    const { rating, ketoRating, comment, menuItems } = req.body;
+    
+    const updated = await updateReview(req.params.reviewId, req.userId, {
+      rating,
+      ketoRating,
+      comment,
+      menuItems
+    });
+    
+    if (!updated) {
+      return res.status(404).json({ error: 'Review not found or you do not have permission to edit it' });
+    }
+    
+    console.log(`✅ Review ${req.params.reviewId} updated by user ${req.userId}`);
+    res.json({ success: true, message: 'Review updated successfully', review: updated });
+  } catch (error) {
+    console.error('Error updating review:', error);
+    res.status(500).json({ error: 'Failed to update review' });
+  }
+});
+
 // Get AI-suggested keto items for a restaurant
 app.post('/api/ai-suggestions', async (req, res) => {
   try {
     const { restaurantName, cuisine } = req.body;
     
     if (!openai) {
-      // Fallback to basic suggestions if OpenAI is not configured
       const fallbackSuggestions = getBasicKetoSuggestions(cuisine);
       return res.json({ 
         suggestions: fallbackSuggestions,
@@ -280,12 +380,10 @@ Respond with ONLY a JSON array of strings, nothing else. Example: ["Grilled Ribe
     
     const responseText = completion.choices[0].message.content.trim();
     
-    // Parse the JSON array from the response
     let suggestions;
     try {
       suggestions = JSON.parse(responseText);
     } catch (parseError) {
-      // If parsing fails, try to extract items manually
       console.error('Failed to parse AI response:', responseText);
       suggestions = getBasicKetoSuggestions(cuisine);
     }
@@ -298,7 +396,6 @@ Respond with ONLY a JSON array of strings, nothing else. Example: ["Grilled Ribe
     
   } catch (error) {
     console.error('Error getting AI suggestions:', error.message);
-    // Fallback to basic suggestions on error
     const { cuisine } = req.body;
     res.json({ 
       suggestions: getBasicKetoSuggestions(cuisine),
@@ -342,12 +439,11 @@ function getPriceLevel(priceLevel) {
 }
 
 function calculateKetoScore(place) {
-  let score = 0.6; // Start with decent base since we're searching keto-friendly types
+  let score = 0.6;
   
   const name = (place.displayName?.text || '').toLowerCase();
   const types = (place.types || []).join(' ').toLowerCase();
   
-  // BOOST: Keto-friendly indicators
   if (name.includes('grill') || name.includes('grille')) score += 0.2;
   if (name.includes('steak') || name.includes('steakhouse')) score += 0.3;
   if (name.includes('bbq') || name.includes('barbecue') || name.includes('smokehouse')) score += 0.25;
@@ -356,33 +452,29 @@ function calculateKetoScore(place) {
   if (name.includes('salad')) score += 0.15;
   if (name.includes('protein') || name.includes('fit') || name.includes('healthy')) score += 0.2;
   
-  // Type-based boosts
   if (types.includes('steak_house')) score += 0.3;
   if (types.includes('seafood_restaurant')) score += 0.25;
   if (types.includes('barbecue_restaurant')) score += 0.25;
-  if (types.includes('brazilian_restaurant')) score += 0.2; // Churrascarias are great for keto
+  if (types.includes('brazilian_restaurant')) score += 0.2;
   if (types.includes('mediterranean_restaurant')) score += 0.15;
   if (types.includes('greek_restaurant')) score += 0.15;
   
-  // PENALIZE: Non-keto indicators
   if (name.includes('pizza')) score -= 0.4;
   if (name.includes('pasta') || name.includes('noodle')) score -= 0.35;
   if (name.includes('bakery') || name.includes('bread')) score -= 0.4;
   if (name.includes('donut') || name.includes('doughnut')) score -= 0.5;
   if (name.includes('ice cream') || name.includes('frozen yogurt')) score -= 0.4;
   if (name.includes('pancake') || name.includes('waffle')) score -= 0.4;
-  if (name.includes('buffet')) score -= 0.2; // Buffets are mixed
+  if (name.includes('buffet')) score -= 0.2;
   if (name.includes('casino')) score -= 0.3;
   if (name.includes('cafe') && !name.includes('grill')) score -= 0.1;
   
-  // Type-based penalties
   if (types.includes('bakery')) score -= 0.35;
   if (types.includes('dessert_shop')) score -= 0.3;
   if (types.includes('ice_cream_shop')) score -= 0.4;
   if (types.includes('pizza_restaurant')) score -= 0.35;
   if (types.includes('fast_food_restaurant')) score -= 0.15;
   
-  // Clamp between 0.2 and 1.0
   return Math.max(0.2, Math.min(1.0, score));
 }
 
@@ -411,15 +503,12 @@ function getCuisineType(types) {
   return 'American';
 }
 
-// Keto options now come from user reviews - see /api/reviews/:restaurantId
-
 function getDiningOptions(place) {
-  // Default options - in a full implementation you'd check place details
   return ['Dine-in', 'Takeout'];
 }
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
-  const R = 3959; // Earth's radius in miles
+  const R = 3959;
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLon = (lon2 - lon1) * Math.PI / 180;
   const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
@@ -441,4 +530,5 @@ if (initDatabase) {
 app.listen(PORT, () => {
   console.log(`🚀 Keto Hunter API running on port ${PORT}`);
   console.log(`Database status: ${saveReview ? '✅ Connected' : '❌ Not Connected'}`);
+  console.log(`Clerk status: ${clerkClient ? '✅ Configured' : '❌ Not Configured'}`);
 });
