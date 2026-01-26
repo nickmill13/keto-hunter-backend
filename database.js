@@ -8,6 +8,7 @@ const pool = new Pool({
 // Initialize database tables
 async function initDatabase() {
   try {
+    // Existing user reviews table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS keto_reviews (
         id SERIAL PRIMARY KEY,
@@ -22,6 +23,29 @@ async function initDatabase() {
         created_at TIMESTAMP DEFAULT NOW()
       )
     `);
+
+    // NEW: Derived NLP signals from Google reviews
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS restaurant_signals (
+        restaurant_id VARCHAR(255) PRIMARY KEY,
+        analyzed_at TIMESTAMP DEFAULT NOW(),
+
+        keto_mentions INT DEFAULT 0,
+        lettuce_wrap_mentions INT DEFAULT 0,
+        bunless_mentions INT DEFAULT 0,
+        cauliflower_rice_mentions INT DEFAULT 0,
+
+        accommodating_mentions INT DEFAULT 0,
+        substitution_mentions INT DEFAULT 0,
+
+        breaded_risk_mentions INT DEFAULT 0,
+        sweet_sauce_risk_mentions INT DEFAULT 0,
+
+        keto_confidence NUMERIC,
+        reasons TEXT
+      )
+    `);
+
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Database initialization error:', error);
@@ -30,8 +54,17 @@ async function initDatabase() {
 
 // Save a review (now includes user_id)
 async function saveReview(reviewData) {
-  const { restaurantId, restaurantName, userName, rating, ketoRating, comment, menuItems, userId } = reviewData;
-  
+  const {
+    restaurantId,
+    restaurantName,
+    userName,
+    rating,
+    ketoRating,
+    comment,
+    menuItems,
+    userId
+  } = reviewData;
+
   const result = await pool.query(
     `INSERT INTO keto_reviews 
      (restaurant_id, restaurant_name, user_name, overall_rating, keto_rating, comment, menu_items, user_id)
@@ -39,7 +72,7 @@ async function saveReview(reviewData) {
      RETURNING *`,
     [restaurantId, restaurantName, userName, rating, ketoRating, comment, menuItems, userId]
   );
-  
+
   return result.rows[0];
 }
 
@@ -51,7 +84,7 @@ async function getReviews(restaurantId) {
      ORDER BY created_at DESC`,
     [restaurantId]
   );
-  
+
   return result.rows;
 }
 
@@ -63,7 +96,7 @@ async function getUserReviews(userId) {
      ORDER BY created_at DESC`,
     [userId]
   );
-  
+
   return result.rows;
 }
 
@@ -75,14 +108,14 @@ async function deleteReview(reviewId, userId) {
      RETURNING *`,
     [reviewId, userId]
   );
-  
+
   return result.rows[0];
 }
 
 // Update a review (only if it belongs to the user)
 async function updateReview(reviewId, userId, updateData) {
   const { rating, ketoRating, comment, menuItems } = updateData;
-  
+
   const result = await pool.query(
     `UPDATE keto_reviews 
      SET overall_rating = $1, keto_rating = $2, comment = $3, menu_items = $4
@@ -90,7 +123,7 @@ async function updateReview(reviewId, userId, updateData) {
      RETURNING *`,
     [rating, ketoRating, comment, menuItems, reviewId, userId]
   );
-  
+
   return result.rows[0];
 }
 
@@ -100,7 +133,7 @@ async function getReviewCount(restaurantId) {
     `SELECT COUNT(*) as count FROM keto_reviews WHERE restaurant_id = $1`,
     [restaurantId]
   );
-  
+
   return parseInt(result.rows[0].count);
 }
 
@@ -110,8 +143,10 @@ async function getAverageKetoRating(restaurantId) {
     `SELECT AVG(keto_rating) as avg_rating FROM keto_reviews WHERE restaurant_id = $1`,
     [restaurantId]
   );
-  
-  return result.rows[0].avg_rating ? parseFloat(result.rows[0].avg_rating) : null;
+
+  return result.rows[0].avg_rating
+    ? parseFloat(result.rows[0].avg_rating)
+    : null;
 }
 
 module.exports = {
