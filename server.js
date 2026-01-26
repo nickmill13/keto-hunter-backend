@@ -312,6 +312,32 @@ app.get('/api/restaurant-signals/:restaurantId', async (req, res) => {
   }
 });
 
+// TEMP: Manually save restaurant signals (for testing only)
+app.post('/api/restaurant-signals/:restaurantId', async (req, res) => {
+  try {
+    if (!upsertRestaurantSignals) {
+      return res.status(500).json({
+        error: 'Database not initialized'
+      });
+    }
+
+    const restaurantId = req.params.restaurantId;
+    const signals = req.body;
+
+    const saved = await upsertRestaurantSignals(restaurantId, signals);
+
+    res.json({
+      success: true,
+      saved
+    });
+  } catch (error) {
+    console.error('Error saving restaurant signals:', error);
+    res.status(500).json({
+      error: 'Failed to save restaurant signals'
+    });
+  }
+});
+
 
 // Get current user's reviews - REQUIRES AUTH
 app.get('/api/my-reviews', requireAuth, async (req, res) => {
