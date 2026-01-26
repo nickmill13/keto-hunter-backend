@@ -303,7 +303,14 @@ app.get('/api/restaurant-signals/:restaurantId', async (req, res) => {
       restaurantId,
       signals
     });
-  } catc
+  } catch (error) {
+    console.error('Error fetching restaurant signals:', error);
+    res.status(500).json({
+      error: 'Failed to fetch restaurant signals',
+      signals: null
+    });
+  }
+});
 
 
 // Get current user's reviews - REQUIRES AUTH
