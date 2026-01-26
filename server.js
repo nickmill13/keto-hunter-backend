@@ -463,6 +463,67 @@ Respond with ONLY a JSON array of strings, nothing else. Example: ["Grilled Ribe
   }
 });
 
+// Analyze Google reviews with keyword scan (no AI)
+app.post('/api/analyze-google-reviews/:restaurantId', async (req, res) => {
+  try {
+    const { restaurantId } = req.params;
+
+    const response = await axios.get(
+      `https://places.googleapis.com/v1/places/${restaurantId}`,
+      {
+        headers: {
+          'X-Goog-Api-Key': process.env.GOOGLE_PLACES_API_KEY,
+          'X-Goog-FieldMask': 'reviews.text.text'
+        }
+      }
+    );
+
+    const reviews = response.data.reviews || [];
+
+    let totals = {
+      ketoMentions: 0,
+      lettuceWrapMentions: 0,
+      bunlessMentions: 0,
+      cauliflowerRiceMentions: 0,
+      accommodatingMentions: 0,
+      breadedRiskMentions: 0,
+      sweetSauceRiskMentions: 0
+    };
+
+    reviews.forEach(r => {
+      if (!r.text?.text) return;
+      const result = analyzeReviewText(r.text.text);
+      Object.keys(totals).forEach(key => {
+        totals[key] += result[key] || 0;
+      });
+    });
+
+    const ketoConfidence = Math.min(
+      1,
+      (totals.ketoMentions +
+        totals.lettuceWrapMentions +
+        totals.bunlessMentions +
+        totals.cauliflowerRiceMentions +
+        totals.accommodatingMentions) / 5
+    );
+
+    const saved = await upsertRestaurantSignals(restaurantId, {
+      ...totals,
+      ketoConfidence,
+      reasons: 'Derived from Google review keyword analysis'
+    });
+
+    res.json({
+      success: true,
+      reviewCount: reviews.length,
+      saved
+    });
+  } catch (error) {
+    console.error('Google review analysis failed:', error.message);
+    res.status(500).json({ error: 'Failed to analyze Google reviews' });
+  }
+});
+
 // Basic keto suggestions by cuisine (fallback when AI is unavailable)
 function getBasicKetoSuggestions(cuisine) {
   const suggestions = {
@@ -482,6 +543,27 @@ function getBasicKetoSuggestions(cuisine) {
   };
   
   return suggestions[cuisine] || ['Grilled Protein', 'House Salad (no croutons)', 'Steamed Vegetables', 'Bunless Burger'];
+}
+
+function analyzeReviewText(text) {
+  const t = text.toLowerCase();
+
+  const has = (phrase) => t.includes(phrase);
+
+  return {
+    ketoMentions: has('keto') || has('low carb') ? 1 : 0,
+    lettuceWrapMentions: has('lettuce wrap') ? 1 : 0,
+    bunlessMentions: has('bunless') ? 1 : 0,
+    cauliflowerRiceMentions: has('cauliflower rice') ? 1 : 0,
+    accommodatingMentions:
+      has('accommodating') ||
+      has('substitute') ||
+      has('made it without') ? 1 : 0,
+    breadedRiskMentions:
+      has('breaded') || has('battered') ? 1 : 0,
+    sweetSauceRiskMentions:
+      has('sweet sauce') || has('glazed') ? 1 : 0
+  };
 }
 
 // Helper functions
