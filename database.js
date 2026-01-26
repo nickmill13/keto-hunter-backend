@@ -149,6 +149,78 @@ async function getAverageKetoRating(restaurantId) {
     : null;
 }
 
+// Get stored signals for a restaurant (returns null if none)
+async function getRestaurantSignals(restaurantId) {
+  const result = await pool.query(
+    `SELECT * FROM restaurant_signals WHERE restaurant_id = $1`,
+    [restaurantId]
+  );
+  return result.rows[0] || null;
+}
+
+// Upsert (insert or update) signals for a restaurant
+async function upsertRestaurantSignals(restaurantId, signals) {
+  const {
+    ketoMentions = 0,
+    lettuceWrapMentions = 0,
+    bunlessMentions = 0,
+    cauliflowerRiceMentions = 0,
+    accommodatingMentions = 0,
+    substitutionMentions = 0,
+    breadedRiskMentions = 0,
+    sweetSauceRiskMentions = 0,
+    ketoConfidence = null,
+    reasons = null
+  } = signals || {};
+
+  const result = await pool.query(
+    `INSERT INTO restaurant_signals (
+      restaurant_id,
+      analyzed_at,
+      keto_mentions,
+      lettuce_wrap_mentions,
+      bunless_mentions,
+      cauliflower_rice_mentions,
+      accommodating_mentions,
+      substitution_mentions,
+      breaded_risk_mentions,
+      sweet_sauce_risk_mentions,
+      keto_confidence,
+      reasons
+    ) VALUES (
+      $1, NOW(), $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
+    )
+    ON CONFLICT (restaurant_id) DO UPDATE SET
+      analyzed_at = NOW(),
+      keto_mentions = EXCLUDED.keto_mentions,
+      lettuce_wrap_mentions = EXCLUDED.lettuce_wrap_mentions,
+      bunless_mentions = EXCLUDED.bunless_mentions,
+      cauliflower_rice_mentions = EXCLUDED.cauliflower_rice_mentions,
+      accommodating_mentions = EXCLUDED.accommodating_mentions,
+      substitution_mentions = EXCLUDED.substitution_mentions,
+      breaded_risk_mentions = EXCLUDED.breaded_risk_mentions,
+      sweet_sauce_risk_mentions = EXCLUDED.sweet_sauce_risk_mentions,
+      keto_confidence = EXCLUDED.keto_confidence,
+      reasons = EXCLUDED.reasons
+    RETURNING *`,
+    [
+      restaurantId,
+      ketoMentions,
+      lettuceWrapMentions,
+      bunlessMentions,
+      cauliflowerRiceMentions,
+      accommodatingMentions,
+      substitutionMentions,
+      breadedRiskMentions,
+      sweetSauceRiskMentions,
+      ketoConfidence,
+      reasons
+    ]
+  );
+
+  return result.rows[0];
+}
+
 module.exports = {
   initDatabase,
   saveReview,
@@ -157,5 +229,8 @@ module.exports = {
   deleteReview,
   updateReview,
   getReviewCount,
-  getAverageKetoRating
+  getAverageKetoRating,
+  getRestaurantSignals,
+  upsertRestaurantSignals
 };
+

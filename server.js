@@ -35,7 +35,8 @@ if (process.env.OPENAI_API_KEY) {
 }
 
 // Try to load database with error handling
-let initDatabase, saveReview, getReviews, getUserReviews, deleteReview, updateReview;
+let initDatabase, saveReview, getReviews, getUserReviews, deleteReview, updateReview, getRestaurantSignals, upsertRestaurantSignals;
+
 try {
   console.log('Attempting to load database module...');
   const db = require('./database');
@@ -45,6 +46,9 @@ try {
   getUserReviews = db.getUserReviews;
   deleteReview = db.deleteReview;
   updateReview = db.updateReview;
+  getRestaurantSignals = db.getRestaurantSignals;
+  upsertRestaurantSignals = db.upsertRestaurantSignals;
+
   console.log('✅ Database module loaded successfully');
 } catch (error) {
   console.error('❌ FAILED TO LOAD DATABASE MODULE:');
@@ -280,6 +284,27 @@ app.get('/api/reviews/:restaurantId', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch reviews', reviews: [], ketoItems: [] });
   }
 });
+
+
+// Get stored NLP signals for a restaurant (public)
+app.get('/api/restaurant-signals/:restaurantId', async (req, res) => {
+  try {
+    if (!getRestaurantSignals) {
+      return res.status(500).json({
+        error: 'Database not initialized',
+        signals: null
+      });
+    }
+
+    const restaurantId = req.params.restaurantId;
+    const signals = await getRestaurantSignals(restaurantId);
+
+    res.json({
+      restaurantId,
+      signals
+    });
+  } catc
+
 
 // Get current user's reviews - REQUIRES AUTH
 app.get('/api/my-reviews', requireAuth, async (req, res) => {
