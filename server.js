@@ -5,6 +5,54 @@ const OpenAI = require('openai');
 const { createClerkClient } = require('@clerk/backend');
 require('dotenv').config();
 
+// Load manual chain menu data (accurate nutrition from official sources)
+const chainMenuData = require('./chain-menus.json');
+console.log('✅ Chain menu data loaded:', Object.keys(chainMenuData).join(', '));
+
+// Known chain registry — detectChain() matches against these keys,
+// and the API Ninjas fallback uses ketoQueries for nutrition lookups
+const CHAIN_REGISTRY = {
+  'chipotle':             { name: 'Chipotle',                menuKey: 'chipotle',          ketoQueries: ['chipotle carnitas salad bowl no rice no beans','chipotle steak bowl lettuce cheese guacamole','chipotle chicken salad no rice'] },
+  'five guys':            { name: 'Five Guys',               menuKey: 'fiveguys',          ketoQueries: ['five guys bunless burger','five guys lettuce wrap bacon cheeseburger','five guys bunless little cheeseburger'] },
+  'panera':               { name: 'Panera Bread',            menuKey: 'panera',            ketoQueries: ['panera caesar salad chicken no croutons','panera greek salad','panera avocado egg white'] },
+  'subway':               { name: 'Subway',                  menuKey: 'subway',            ketoQueries: ['subway salad bowl turkey','subway chicken bacon ranch salad','subway tuna salad bowl'] },
+  'chick-fil-a':          { name: 'Chick-fil-A',             menuKey: 'chickfila',         ketoQueries: ['chick fil a grilled chicken nuggets','chick fil a cobb salad no corn','chick fil a grilled chicken'] },
+  'mcdonald':             { name: "McDonald's",              menuKey: 'mcdonalds',         ketoQueries: ['mcdonalds quarter pounder no bun','mcdonalds bacon egg cheese no muffin','mcdonalds sausage burrito no tortilla','quarter pounder patty','double cheeseburger no bun','bacon egg and cheese no biscuit','mcdonald grilled chicken','side salad'] },
+  'wendy':                { name: "Wendy's",                 menuKey: 'wendys',            ketoQueries: ['wendys baconator no bun','wendys dave single no bun','wendys caesar salad grilled chicken'] },
+  'burger king':          { name: 'Burger King',             menuKey: 'burgerking',        ketoQueries: ['whopper patty no bun','double whopper no bun','bacon king no bun','grilled chicken sandwich no bun'] },
+  'taco bell':            { name: 'Taco Bell',               menuKey: 'tacobell',          ketoQueries: ['power bowl no rice no beans','taco bell steak','cheese quesadilla','black beans'] },
+  'dunkin':               { name: "Dunkin'",                 menuKey: 'dunkin',            ketoQueries: ['dunkin egg and cheese','bacon egg and cheese wake up wrap','sausage egg and cheese','coffee black'] },
+  'starbucks':            { name: 'Starbucks',               ketoQueries: ['starbucks egg bites','bacon gruyere egg bites','chicken sausage egg bites','unsweetened iced coffee'] },
+  'olive garden':         { name: 'Olive Garden',            ketoQueries: ['olive garden grilled chicken','olive garden shrimp scampi no pasta','olive garden salmon'] },
+  'red lobster':          { name: 'Red Lobster',             ketoQueries: ['red lobster live maine lobster','red lobster wood-grilled lobster tail','red lobster grilled salmon'] },
+  'buffalo wild wings':   { name: 'Buffalo Wild Wings',      menuKey: 'buffalowildwings',  ketoQueries: ['buffalo wild wings traditional wings','buffalo wild wings naked tenders','buffalo wild wings caesar salad'] },
+  'outback':              { name: 'Outback Steakhouse',      menuKey: 'outback',           ketoQueries: ['outback ribeye steak','outback victoria filet','outback grilled chicken'] },
+  'texas roadhouse':      { name: 'Texas Roadhouse',         menuKey: 'texasroadhouse',    ketoQueries: ['texas roadhouse ribeye','texas roadhouse sirloin','texas roadhouse grilled chicken salad'] },
+  'longhorn':             { name: 'LongHorn Steakhouse',     menuKey: 'longhorn',          ketoQueries: ['longhorn outlaw ribeye','longhorn flo filet','longhorn grilled salmon'] },
+  'applebee':             { name: "Applebee's",              ketoQueries: ['applebees bourbon street steak','applebees grilled chicken caesar salad','applebees shrimp'] },
+  'chili':                { name: "Chili's",                 ketoQueries: ['chilis ancho salmon','chilis grilled chicken salad','chilis chicken fajitas no tortilla'] },
+  'tgi friday':           { name: "TGI Friday's",            ketoQueries: ['tgi fridays grilled salmon','tgi fridays steak','tgi fridays caesar salad'] },
+  'in-n-out':             { name: 'In-N-Out Burger',         menuKey: 'innout',            ketoQueries: ['in n out protein style burger','in n out double double protein style','in n out cheeseburger lettuce wrap'] },
+  'shake shack':          { name: 'Shake Shack',             ketoQueries: ['shake shack lettuce wrap burger','shake shack shackburger no bun','shake shack cheese fries no fries'] },
+  'jimmy john':           { name: "Jimmy John's",            ketoQueries: ['jimmy johns unwich turkey','jimmy johns lettuce wrap italian','jimmy johns unwich club'] },
+  'jersey mike':          { name: "Jersey Mike's",           ketoQueries: ['jersey mikes sub in a tub','jersey mikes chipotle cheesesteak bowl','jersey mikes club bowl'] },
+  'qdoba':                { name: 'Qdoba',                   ketoQueries: ['qdoba steak bowl no rice','qdoba chicken salad','qdoba fajita bowl no beans'] },
+  'moe':                  { name: "Moe's Southwest Grill",   ketoQueries: ['moes chicken bowl no rice','moes steak salad','moes carnitas bowl'] },
+  'wingstop':             { name: 'Wingstop',                menuKey: 'wingstop',          ketoQueries: ['wingstop classic wings','wingstop original hot wings','wingstop lemon pepper wings'] },
+  'popeyes':              { name: 'Popeyes',                 ketoQueries: ['popeyes blackened chicken tenders','popeyes naked chicken','popeyes green beans'] },
+  'kfc':                  { name: 'KFC',                     ketoQueries: ['kfc grilled chicken breast','kfc original chicken no breading','kfc green beans'] },
+  'panda express':        { name: 'Panda Express',           ketoQueries: ['panda express grilled teriyaki chicken','panda express string bean chicken breast','panda express mushroom chicken'] },
+  'cheesecake factory':   { name: 'The Cheesecake Factory',  ketoQueries: ['cheesecake factory grilled salmon','cheesecake factory steak','cheesecake factory chicken salad'] },
+  'red robin':            { name: 'Red Robin',               ketoQueries: ['red robin lettuce wrap burger','red robin tavern burger no bun','red robin wedgie burger'] },
+  'carrabba':             { name: "Carrabba's Italian Grill",ketoQueries: ['carrabbas chicken bryan','carrabbas grilled salmon','carrabbas sirloin marsala'] }
+};
+
+// Derive the chain-menus.json key from a chain's display name
+// Returns the chain-menus.json key for a CHAIN_REGISTRY entry (null if no curated data)
+function getChainMenuKey(chainInfo) {
+  return chainInfo?.menuKey || null;
+}
+
 console.log('=== STARTUP DIAGNOSTICS ===');
 console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('PORT:', process.env.PORT);
@@ -79,7 +127,6 @@ async function requireAuth(req, res, next) {
   try {
     const { sub: userId } = await clerkClient.verifyToken(token);
     req.userId = userId;
-    console.log('✅ Authenticated user:', userId);
     next();
   } catch (error) {
     console.error('❌ Token verification failed:', error.message);
@@ -141,79 +188,159 @@ app.post('/api/geocode', async (req, res) => {
 // Search for keto-friendly restaurants
 app.post('/api/search-keto-restaurants', async (req, res) => {
   try {
-    const { latitude, longitude, radius = 8000 } = req.body;
+    const { latitude, longitude, radius = 8000, searchQuery } = req.body;
     
-    const ketoFriendlyTypes = [
-      'steak_house',
-      'seafood_restaurant', 
-      'american_restaurant',
-      'barbecue_restaurant',
-      'mediterranean_restaurant',
-      'mexican_restaurant',
-      'brazilian_restaurant',
-      'greek_restaurant'
-    ];
-
-    const response = await axios.post(
-      'https://places.googleapis.com/v1/places:searchNearby',
-      {
-        includedTypes: ketoFriendlyTypes,
-        maxResultCount: 20,
-        rankPreference: 'DISTANCE',
-        locationRestriction: {
-          circle: {
-            center: {
-              latitude: latitude,
-              longitude: longitude
-            },
-            radius: radius
+    
+    // If user provided a specific search term, do a text search
+    if (searchQuery && searchQuery.trim()) {
+      
+      const textSearchResponse = await axios.post(
+        'https://places.googleapis.com/v1/places:searchText',
+        {
+          textQuery: searchQuery,
+          locationBias: {
+            circle: {
+              center: {
+                latitude: latitude,
+                longitude: longitude
+              },
+              radius: radius
+            }
+          },
+          maxResultCount: 20
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': process.env.GOOGLE_PLACES_API_KEY,
+            'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.location,places.rating,places.priceLevel,places.types,places.id'
           }
         }
+      );
+      
+      const places = textSearchResponse.data.places || [];
+      const restaurants = processRestaurants(places, latitude, longitude);
+      
+      return res.json({ restaurants, searchType: 'text' });
+    }
+    
+    const searchGroups = [
+      {
+        name: 'Premium Keto',
+        types: ['steak_house', 'seafood_restaurant', 'barbecue_restaurant', 'brazilian_restaurant']
       },
       {
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Goog-Api-Key': process.env.GOOGLE_PLACES_API_KEY,
-          'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.location,places.rating,places.priceLevel,places.types,places.id'
-        }
+        name: 'Casual & International',
+        types: ['american_restaurant', 'mediterranean_restaurant', 'greek_restaurant', 'mexican_restaurant', 'hamburger_restaurant', 'sandwich_shop']
+      },
+      {
+        name: 'Bars & More',
+        types: ['bar', 'restaurant', 'breakfast_restaurant', 'brunch_restaurant']
       }
-    );
-
-    const places = response.data.places || [];
+    ];
     
-    const restaurants = places.map(place => ({
-      id: place.id,
-      name: place.displayName?.text || 'Unknown',
-      address: place.formattedAddress || 'Address not available',
-      rating: place.rating || 4.0,
-      priceLevel: place.priceLevel ? getPriceLevel(place.priceLevel) : 2,
-      cuisine: getCuisineType(place.types || []),
-      distance: calculateDistance(latitude, longitude, 
-        place.location.latitude, 
-        place.location.longitude),
-      ketoScore: calculateKetoScore(place),
-      ketoOptions: [],
-      diningOptions: getDiningOptions(place),
-      ketoReviews: 0
-    }));
-
-    const ketoFriendly = restaurants
-      .filter(r => r.ketoScore >= 0.5)
-      .sort((a, b) => b.ketoScore - a.ketoScore);
-
-    res.json({ restaurants: ketoFriendly });
+    
+    const allPlaces = new Map(); // Use Map to deduplicate by ID
+    
+    // Execute all searches in parallel
+    const searchPromises = searchGroups.map(async (group) => {
+      try {
+        
+        const response = await axios.post(
+          'https://places.googleapis.com/v1/places:searchNearby',
+          {
+            includedTypes: group.types,
+            maxResultCount: 20,
+            rankPreference: 'DISTANCE',
+            locationRestriction: {
+              circle: {
+                center: {
+                  latitude: latitude,
+                  longitude: longitude
+                },
+                radius: radius
+              }
+            }
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Goog-Api-Key': process.env.GOOGLE_PLACES_API_KEY,
+              'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.location,places.rating,places.priceLevel,places.types,places.id'
+            }
+          }
+        );
+        
+        const places = response.data.places || [];
+        
+        // Add to map (automatically deduplicates by ID)
+        places.forEach(place => {
+          if (place.id && !allPlaces.has(place.id)) {
+            allPlaces.set(place.id, place);
+          }
+        });
+        
+      } catch (error) {
+        console.error(`    ❌ ${group.name} search failed:`, error.message);
+      }
+    });
+    
+    // Wait for all searches to complete
+    await Promise.all(searchPromises);
+    
+    
+    const uniquePlaces = Array.from(allPlaces.values());
+    const restaurants = processRestaurants(uniquePlaces, latitude, longitude);
+    
+    
+    res.json({ restaurants, searchType: 'nearby-multi' });
+    
   } catch (error) {
     console.error('Error:', error.response?.data || error.message);
     res.status(500).json({ error: 'Failed to fetch restaurants' });
   }
 });
 
-// Submit review endpoint - NOW REQUIRES AUTH
+// Helper function to process restaurant data
+function processRestaurants(places, userLat, userLon) {
+  const restaurants = places.map(place => ({
+    id: place.id,
+    name: place.displayName?.text || 'Unknown',
+    address: place.formattedAddress || 'Address not available',
+    rating: place.rating || 4.0,
+    priceLevel: place.priceLevel ? getPriceLevel(place.priceLevel) : 2,
+    cuisine: getCuisineType(place.types || []),
+    distance: calculateDistance(userLat, userLon, 
+      place.location.latitude, 
+      place.location.longitude),
+    lat: place.location.latitude,
+    lng: place.location.longitude,
+    ketoScore: calculateKetoScore(place),
+    diningOptions: getDiningOptions(place),
+    isChain: detectChain(place.displayName?.text || '') !== null
+  }));
+
+  // Sort: known chains first, then by keto score, then by distance
+  return restaurants
+    .filter(r => r.ketoScore >= 0.2)  // Keep minimum keto score
+    .sort((a, b) => {
+      // Prioritize known chains
+      if (a.isChain && !b.isChain) return -1;
+      if (!a.isChain && b.isChain) return 1;
+      
+      // Then sort by keto score
+      if (Math.abs(a.ketoScore - b.ketoScore) > 0.1) {
+        return b.ketoScore - a.ketoScore;
+      }
+      
+      // Finally by distance
+      return parseFloat(a.distance) - parseFloat(b.distance);
+    });
+}
+
+// Submit review (requires auth)
 app.post('/api/submit-review', requireAuth, async (req, res) => {
   try {
-    console.log('=== REVIEW SUBMISSION STARTED ===');
-    console.log('User ID from token:', req.userId);
-    console.log('Request body:', req.body);
     
     if (!saveReview) {
       console.error('❌ ERROR: saveReview function is not available!');
@@ -225,7 +352,6 @@ app.post('/api/submit-review', requireAuth, async (req, res) => {
     
     const { restaurantId, restaurantName, rating, ketoRating, comment, menuItems, userName } = req.body;
     
-    console.log('Attempting to save review to database...');
     const review = await saveReview({
       restaurantId,
       restaurantName,
@@ -285,7 +411,6 @@ app.get('/api/reviews/:restaurantId', async (req, res) => {
   }
 });
 
-
 // Get stored NLP signals for a restaurant (public)
 app.get('/api/restaurant-signals/:restaurantId', async (req, res) => {
   try {
@@ -312,8 +437,8 @@ app.get('/api/restaurant-signals/:restaurantId', async (req, res) => {
   }
 });
 
-// TEMP: Manually save restaurant signals (for testing only)
-app.post('/api/restaurant-signals/:restaurantId', async (req, res) => {
+// Save restaurant signals (requires auth)
+app.post('/api/restaurant-signals/:restaurantId', requireAuth, async (req, res) => {
   try {
     if (!upsertRestaurantSignals) {
       return res.status(500).json({
@@ -337,7 +462,6 @@ app.post('/api/restaurant-signals/:restaurantId', async (req, res) => {
     });
   }
 });
-
 
 // Get current user's reviews - REQUIRES AUTH
 app.get('/api/my-reviews', requireAuth, async (req, res) => {
@@ -463,11 +587,47 @@ Respond with ONLY a JSON array of strings, nothing else. Example: ["Grilled Ribe
   }
 });
 
-// Analyze Google reviews with keyword scan (no AI)
+// Analyze Google reviews with keyword-based signal extraction
 app.post('/api/analyze-google-reviews/:restaurantId', async (req, res) => {
   try {
     const { restaurantId } = req.params;
+    const { restaurantName } = req.body || {};
 
+    // Short-circuit: known chains have verified nutrition   no need to guess from reviews
+    if (restaurantName) {
+      const chainInfo = detectChain(restaurantName);
+      if (chainInfo) {
+        const menuKey = getChainMenuKey(chainInfo);
+        const menuData = chainMenuData[menuKey];
+        if (menuData && menuData.combos && menuData.combos.length > 0) {
+          const bestItem = [...menuData.combos].sort((a, b) => a.carbs - b.carbs)[0];
+          const lowCarbCount = menuData.combos.filter(c => c.carbs <= 5).length;
+          const summary = `Verified: ${menuData.combos.length} keto options from ${chainInfo.name} (${lowCarbCount} under 5g carbs). Best: ${bestItem.name}   ${bestItem.carbs}g carbs, ${bestItem.protein}g protein`;
+
+          const saved = await upsertRestaurantSignals(restaurantId, {
+            ketoConfidence: 1.0,
+            reasons: summary
+          });
+
+          console.log(`✅ Chain short-circuit for ${chainInfo.name}   skipping Google review scan`);
+
+          return res.json({
+            success: true,
+            reviewCount: 0,
+            signals: {},
+            ketoConfidence: 1.0,
+            summary: summary,
+            foundKetoFoods: menuData.combos.map(c => c.name).slice(0, 8),
+            foundCustomizations: menuData.orderTips || [],
+            foundCookingMethods: [],
+            saved: saved,
+            isVerifiedChain: true
+          });
+        }
+      }
+    }
+
+    // Fetch Google reviews
     const response = await axios.get(
       `https://places.googleapis.com/v1/places/${restaurantId}`,
       {
@@ -479,51 +639,76 @@ app.post('/api/analyze-google-reviews/:restaurantId', async (req, res) => {
     );
 
     const reviews = response.data.reviews || [];
+    const reviewCount = reviews.length;
 
     let totals = {
       ketoMentions: 0,
-      lettuceWrapMentions: 0,
-      bunlessMentions: 0,
-      cauliflowerRiceMentions: 0,
+      customizationMentions: 0,
       accommodatingMentions: 0,
-      breadedRiskMentions: 0,
-      sweetSauceRiskMentions: 0
+      ketoFoodMentions: 0,
+      healthyCookingMentions: 0,
+      dietaryMentions: 0,
+      portionMentions: 0,
+      hiddenCarbMentions: 0,
+      highCarbMentions: 0,
     };
+
+    const allFoundKetoFoods = new Set();
+    const allFoundCustomizations = new Set();
+    const allFoundCookingMethods = new Set();
 
     reviews.forEach(r => {
       if (!r.text?.text) return;
       const result = analyzeReviewText(r.text.text);
+
       Object.keys(totals).forEach(key => {
         totals[key] += result[key] || 0;
       });
+
+      if (result.foundKetoFoods) {
+        result.foundKetoFoods.forEach(item => allFoundKetoFoods.add(item));
+      }
+      if (result.foundCustomizations) {
+        result.foundCustomizations.forEach(item => allFoundCustomizations.add(item));
+      }
+      if (result.foundCookingMethods) {
+        result.foundCookingMethods.forEach(item => allFoundCookingMethods.add(item));
+      }
     });
 
-    const ketoConfidence = Math.min(
-      1,
-      (totals.ketoMentions +
-        totals.lettuceWrapMentions +
-        totals.bunlessMentions +
-        totals.cauliflowerRiceMentions +
-        totals.accommodatingMentions) / 5
-    );
+    const foundKetoFoods = Array.from(allFoundKetoFoods).slice(0, 8);
+    const foundCustomizations = Array.from(allFoundCustomizations).slice(0, 6);
+    const foundCookingMethods = Array.from(allFoundCookingMethods).slice(0, 4);
+
+    const ketoConfidence = calculateKetoConfidence(totals, reviewCount);
+    const summary = generateSignalsSummary(totals, ketoConfidence);
 
     const saved = await upsertRestaurantSignals(restaurantId, {
       ...totals,
       ketoConfidence,
-      reasons: 'Derived from Google review keyword analysis'
+      reasons: summary
     });
 
     res.json({
       success: true,
-      reviewCount: reviews.length,
-      saved
+      reviewCount: reviewCount,
+      signals: totals,
+      ketoConfidence: ketoConfidence,
+      summary: summary,
+      foundKetoFoods: foundKetoFoods,
+      foundCustomizations: foundCustomizations,
+      foundCookingMethods: foundCookingMethods,
+      saved: saved
     });
+
   } catch (error) {
     console.error('Google review analysis failed:', error.message);
-    res.status(500).json({ error: 'Failed to analyze Google reviews' });
+    res.status(500).json({ 
+      error: 'Failed to analyze Google reviews',
+      details: error.message 
+    });
   }
 });
-
 // Basic keto suggestions by cuisine (fallback when AI is unavailable)
 function getBasicKetoSuggestions(cuisine) {
   const suggestions = {
@@ -545,25 +730,287 @@ function getBasicKetoSuggestions(cuisine) {
   return suggestions[cuisine] || ['Grilled Protein', 'House Salad (no croutons)', 'Steamed Vegetables', 'Bunless Burger'];
 }
 
+// Get verified menu data for a chain restaurant
+app.get('/api/chain-menu/:restaurantId', async (req, res) => {
+  try {
+    const { restaurantId } = req.params;
+    const { restaurantName } = req.query;
+    
+    if (!restaurantName) {
+      return res.json({ isChain: false, items: [] });
+    }
+    
+    // Check if it's a known chain
+    const chainInfo = detectChain(restaurantName);
+    
+    if (!chainInfo) {
+      return res.json({ isChain: false, items: [] });
+    }
+    
+    
+    // Use curated nutrition data if available
+    const manualData = chainMenuData[getChainMenuKey(chainInfo)];
+    
+    if (manualData && manualData.combos && manualData.combos.length > 0) {
+      
+      return res.json({
+        isChain: true,
+        chainName: chainInfo.name,
+        items: manualData.combos,
+        orderTips: manualData.orderTips || [],
+        source: manualData.source,
+        message: `${manualData.combos.length} verified keto options (official nutrition)`
+      });
+    }
+    
+    // FALLBACK: Query API Ninjas for chains without manual data
+    const ketoItems = [];
+    
+    for (const item of chainInfo.ketoQueries) {
+      try {
+        const response = await axios.get(
+          `https://api.api-ninjas.com/v1/nutrition?query=${encodeURIComponent(item)}`,
+          {
+            headers: {
+              'X-Api-Key': process.env.API_NINJAS_KEY
+            }
+          }
+        );
+        
+        if (response.data && response.data.length > 0) {
+          const itemData = response.data[0];
+          const carbs = itemData.carbohydrates_total_g || 0;
+          
+          // Only include if reasonably low carb (< 20g)
+          if (carbs < 20) {
+            ketoItems.push({
+              name: item,
+              carbs: Math.round(carbs * 10) / 10,
+              protein: Math.round((itemData.protein_g || 0) * 10) / 10,
+              fat: Math.round((itemData.fat_total_g || 0) * 10) / 10,
+              calories: Math.round(itemData.calories || 0),
+              verified: true
+            });
+          }
+        }
+      } catch (error) {
+        console.error(`Error fetching ${item}:`, error.message);
+      }
+    }
+    
+    res.json({
+      isChain: true,
+      chainName: chainInfo.name,
+      items: ketoItems,
+      message: ketoItems.length > 0 
+        ? `Found ${ketoItems.length} verified keto options` 
+        : 'No verified keto items found'
+    });
+    
+  } catch (error) {
+    console.error('Chain menu error:', error.message);
+    res.status(500).json({ error: 'Failed to fetch chain menu data', isChain: false, items: [] });
+  }
+});
+
+function detectChain(restaurantName) {
+  const name = restaurantName.toLowerCase();
+  for (const [key, chain] of Object.entries(CHAIN_REGISTRY)) {
+    if (name.includes(key)) {
+      return chain;
+    }
+  }
+  return null;
+}
+
 function analyzeReviewText(text) {
   const t = text.toLowerCase();
 
-  const has = (phrase) => t.includes(phrase);
+  const countMatches = (phrases) => phrases.filter(phrase => t.includes(phrase)).length;
+  const getMatches = (phrases) => phrases.filter(phrase => t.includes(phrase));
+
+  // KETO-SPECIFIC MENTIONS (strongest signal)
+  const ketoKeywords = ['keto', 'ketogenic', 'low carb', 'low-carb', 'lchf', 'paleo'];
+  const ketoMentions = countMatches(ketoKeywords);
+
+  // CUSTOMIZATION OPTIONS (very strong signal)
+  const customizationKeywords = [
+    'lettuce wrap', 'lettuce wrapped', 'protein style',
+    'bunless', 'without the bun', 'skip the bun',
+    'cauliflower rice', 'cauli rice',
+    'no bread', 'without bread', 'skip the bread',
+    'no tortilla', 'no wrap',
+    'bowl instead', 'make it a bowl',
+    'substitute', 'substitution', 'swap',
+    'no pasta', 'no noodles', 'no rice',
+    'no bun', 'without bun',
+    'no ketchup', 'no sauce',
+    'instead of', 'made it without', 'hold the', 'remove the',
+    'can i get', 'can you make'
+  ];
+  const customizationMentions = countMatches(customizationKeywords);
+
+  // ACCOMMODATING SERVICE (strong positive signal)
+  const accommodatingKeywords = [
+    'accommodating', 'accommodated',
+    'willing to', 'happy to modify', 'no problem',
+    'very flexible', 'flexible with',
+    'made it without', 'left off', 'held the',
+    'custom', 'customize', 'modification'
+  ];
+  const accommodatingMentions = countMatches(accommodatingKeywords);
+
+  // KETO-FRIENDLY FOODS (good signal)
+  const ketoFoodKeywords = [
+    'avocado', 'bacon', 'egg', 'eggs',
+    'steak', 'ribeye', 'sirloin', 'filet',
+    'salmon', 'fish', 'seafood', 'shrimp',
+    'chicken breast', 'grilled chicken',
+    'bunless burger', 'burger bowl', 'protein bowl',
+    'salad', 'greens', 'vegetables', 'veggies',
+    'cheese', 'butter', 'olive oil',
+    'wings', 'drumstick'
+  ];
+  const ketoFoodMentions = countMatches(ketoFoodKeywords);
+
+  // COOKING METHODS (positive signal)
+  const healthyCookingKeywords = [
+    'grilled', 'baked', 'roasted', 'steamed',
+    'sautéed', 'sauteed', 'pan-seared', 'broiled'
+  ];
+  const healthyCookingMentions = countMatches(healthyCookingKeywords);
+
+  // DIETARY AWARENESS (moderate positive signal)
+  const dietaryKeywords = [
+    'gluten free', 'gluten-free', 'dairy free', 'sugar free',
+    'diet friendly', 'dietary restrictions', 'dietary needs',
+    'nutrition', 'macros', 'calories', 'carbs'
+  ];
+  const dietaryMentions = countMatches(dietaryKeywords);
+
+  // HIDDEN CARB RISKS (warning signals)
+  const hiddenCarbKeywords = [
+    'breaded', 'battered', 'fried coating',
+    'sweet sauce', 'teriyaki', 'bbq sauce', 'honey',
+    'glazed', 'candied', 'sweetened',
+    'flour tortilla', 'corn tortilla'
+  ];
+  const hiddenCarbMentions = countMatches(hiddenCarbKeywords);
+
+  // HIGH CARB FOODS (negative signals)
+  const highCarbKeywords = [
+    'pasta', 'noodles', 'rice', 'bread', 'bun',
+    'potato', 'fries', 'chips',
+    'pizza', 'dough',
+    'dessert', 'cake', 'cookie', 'pastry',
+    'pancake', 'waffle', 'toast'
+  ];
+  const highCarbMentions = countMatches(highCarbKeywords);
+
+  // PORTION/VALUE (good for keto - bigger portions = better)
+  const portionKeywords = [
+    'huge portion', 'large portion', 'generous portion',
+    'filling', 'substantial', 'plenty of protein'
+  ];
+  const portionMentions = countMatches(portionKeywords);
 
   return {
-    ketoMentions: has('keto') || has('low carb') ? 1 : 0,
-    lettuceWrapMentions: has('lettuce wrap') ? 1 : 0,
-    bunlessMentions: has('bunless') ? 1 : 0,
-    cauliflowerRiceMentions: has('cauliflower rice') ? 1 : 0,
-    accommodatingMentions:
-      has('accommodating') ||
-      has('substitute') ||
-      has('made it without') ? 1 : 0,
-    breadedRiskMentions:
-      has('breaded') || has('battered') ? 1 : 0,
-    sweetSauceRiskMentions:
-      has('sweet sauce') || has('glazed') ? 1 : 0
+    // Core signals
+    ketoMentions,
+    customizationMentions,
+    accommodatingMentions,
+    
+    // Additional positive signals
+    ketoFoodMentions,
+    healthyCookingMentions,
+    dietaryMentions,
+    portionMentions,
+    
+    // Warning signals
+    hiddenCarbMentions,
+    highCarbMentions,
+    
+    // Track which items were actually found
+    foundKetoFoods: getMatches(ketoFoodKeywords),
+    foundCustomizations: getMatches(customizationKeywords),
+    foundCookingMethods: getMatches(healthyCookingKeywords),
   };
+}
+
+// Calculate weighted keto confidence score
+function calculateKetoConfidence(signals, reviewCount) {
+  // If no reviews, return null
+  if (reviewCount === 0) return null;
+
+  // Weight different signal types
+  const weights = {
+    ketoMentions: 3.0,           // Strongest signal
+    customizationMentions: 2.5,   // Very strong
+    accommodatingMentions: 2.0,   // Strong
+    ketoFoodMentions: 1.0,        // Good
+    healthyCookingMentions: 0.8,  // Moderate
+    dietaryMentions: 0.7,         // Moderate
+    portionMentions: 0.5,         // Slight boost
+    hiddenCarbMentions: -1.5,     // Warning
+    highCarbMentions: -0.8        // Slight negative
+  };
+
+  // Calculate weighted score
+  let score = 0;
+  let maxPossibleScore = 0;
+
+  Object.entries(weights).forEach(([key, weight]) => {
+    const mentions = signals[key] || 0;
+    score += mentions * weight;
+    
+    // For positive weights, add to max possible (normalize later)
+    if (weight > 0) {
+      maxPossibleScore += Math.abs(weight) * 3; // Assume max 3 mentions per category
+    }
+  });
+
+  // Normalize to 0-1 range with adjustment for review count
+  let confidence = score / maxPossibleScore;
+  
+  // Boost confidence if we have more reviews (more data = more reliable)
+  const reviewBoost = Math.min(reviewCount / 20, 0.2); // Up to +0.2 for 20+ reviews
+  confidence += reviewBoost;
+
+  // Clamp to 0-1 range
+  confidence = Math.max(0, Math.min(1, confidence));
+
+  return confidence;
+}
+
+// Generate human-readable summary of signals
+function generateSignalsSummary(signals, confidence) {
+  const summary = [];
+  
+  if (signals.ketoMentions > 0) {
+    summary.push(`${signals.ketoMentions} keto/low-carb mention${signals.ketoMentions > 1 ? 's' : ''}`);
+  }
+  
+  if (signals.customizationMentions > 0) {
+    summary.push(`${signals.customizationMentions} customization option${signals.customizationMentions > 1 ? 's' : ''}`);
+  }
+  
+  if (signals.accommodatingMentions > 0) {
+    summary.push(`${signals.accommodatingMentions} mention${signals.accommodatingMentions > 1 ? 's' : ''} of accommodating service`);
+  }
+  
+  if (signals.ketoFoodMentions > 3) {
+    summary.push(`${signals.ketoFoodMentions} keto-friendly foods mentioned`);
+  }
+  
+  if (signals.hiddenCarbMentions > 0) {
+    summary.push(`⚠️ ${signals.hiddenCarbMentions} warning${signals.hiddenCarbMentions > 1 ? 's' : ''} about hidden carbs`);
+  }
+  
+  if (summary.length === 0) {
+    return 'No specific keto signals found in reviews';
+  }
+  
+  return summary.join(' • ');
 }
 
 // Helper functions
@@ -578,43 +1025,75 @@ function getPriceLevel(priceLevel) {
   return mapping[priceLevel] || 2;
 }
 
+// Score a known chain based on its actual verified menu nutrition
+function calculateChainKetoScore(menuData) {
+  const combos = menuData.combos;
+  const lowCarbCount = combos.filter(c => c.carbs <= 5).length;
+  const avgCarbs = combos.reduce((sum, c) => sum + c.carbs, 0) / combos.length;
+  const hasZeroCarb = combos.some(c => c.carbs === 0);
+
+  // ketoNaturalness reflects how naturally keto-friendly the restaurant's core menu is.
+  // A steakhouse scores high because steaks ARE the menu.
+  // A donut shop scores low because every keto option requires throwing away the product.
+  const naturalness = menuData.ketoNaturalness || 0.70;
+
+  let score = 0.50 + (naturalness * 0.20);                  // Base: 0.50 (low naturalness) → 0.70 (high)
+  score += (lowCarbCount / combos.length) * 0.20;           // Up to +0.20 if all items <= 5g carbs
+  score += Math.max(0, (12 - avgCarbs) / 12) * 0.06;       // Up to +0.06 for low average carbs
+  if (hasZeroCarb) score += 0.02;                           // Small bonus for 0g carb options
+
+  return Math.min(0.97, Math.round(score * 100) / 100);    // Cap 0.97 — chain still has non-keto items
+}
+
 function calculateKetoScore(place) {
+  const name = place.displayName?.text || '';
+
+  // Known chain with verified menu data? Score from actual nutrition, not guesswork.
+  const chainInfo = detectChain(name);
+  if (chainInfo) {
+    const menuKey = getChainMenuKey(chainInfo);
+    const menuData = chainMenuData[menuKey];
+    if (menuData && menuData.combos && menuData.combos.length > 0) {
+      return calculateChainKetoScore(menuData);
+    }
+  }
+
+  // Fallback: estimate from restaurant name and Google type keywords
   let score = 0.6;
-  
-  const name = (place.displayName?.text || '').toLowerCase();
+  const nameLower = name.toLowerCase();
   const types = (place.types || []).join(' ').toLowerCase();
-  
-  if (name.includes('grill') || name.includes('grille')) score += 0.2;
-  if (name.includes('steak') || name.includes('steakhouse')) score += 0.3;
-  if (name.includes('bbq') || name.includes('barbecue') || name.includes('smokehouse')) score += 0.25;
-  if (name.includes('seafood') || name.includes('fish')) score += 0.2;
-  if (name.includes('meat') || name.includes('butcher')) score += 0.2;
-  if (name.includes('salad')) score += 0.15;
-  if (name.includes('protein') || name.includes('fit') || name.includes('healthy')) score += 0.2;
-  
+
+  if (nameLower.includes('grill') || nameLower.includes('grille')) score += 0.2;
+  if (nameLower.includes('steak') || nameLower.includes('steakhouse')) score += 0.3;
+  if (nameLower.includes('bbq') || nameLower.includes('barbecue') || nameLower.includes('smokehouse')) score += 0.25;
+  if (nameLower.includes('seafood') || nameLower.includes('fish')) score += 0.2;
+  if (nameLower.includes('meat') || nameLower.includes('butcher')) score += 0.2;
+  if (nameLower.includes('salad')) score += 0.15;
+  if (nameLower.includes('protein') || nameLower.includes('fit') || nameLower.includes('healthy')) score += 0.2;
+
   if (types.includes('steak_house')) score += 0.3;
   if (types.includes('seafood_restaurant')) score += 0.25;
   if (types.includes('barbecue_restaurant')) score += 0.25;
   if (types.includes('brazilian_restaurant')) score += 0.2;
   if (types.includes('mediterranean_restaurant')) score += 0.15;
   if (types.includes('greek_restaurant')) score += 0.15;
-  
-  if (name.includes('pizza')) score -= 0.4;
-  if (name.includes('pasta') || name.includes('noodle')) score -= 0.35;
-  if (name.includes('bakery') || name.includes('bread')) score -= 0.4;
-  if (name.includes('donut') || name.includes('doughnut')) score -= 0.5;
-  if (name.includes('ice cream') || name.includes('frozen yogurt')) score -= 0.4;
-  if (name.includes('pancake') || name.includes('waffle')) score -= 0.4;
-  if (name.includes('buffet')) score -= 0.2;
-  if (name.includes('casino')) score -= 0.3;
-  if (name.includes('cafe') && !name.includes('grill')) score -= 0.1;
-  
+
+  if (nameLower.includes('pizza')) score -= 0.4;
+  if (nameLower.includes('pasta') || nameLower.includes('noodle')) score -= 0.35;
+  if (nameLower.includes('bakery') || nameLower.includes('bread')) score -= 0.4;
+  if (nameLower.includes('donut') || nameLower.includes('doughnut')) score -= 0.5;
+  if (nameLower.includes('ice cream') || nameLower.includes('frozen yogurt')) score -= 0.4;
+  if (nameLower.includes('pancake') || nameLower.includes('waffle')) score -= 0.4;
+  if (nameLower.includes('buffet')) score -= 0.2;
+  if (nameLower.includes('casino')) score -= 0.3;
+  if (nameLower.includes('cafe') && !nameLower.includes('grill')) score -= 0.1;
+
   if (types.includes('bakery')) score -= 0.35;
   if (types.includes('dessert_shop')) score -= 0.3;
   if (types.includes('ice_cream_shop')) score -= 0.4;
   if (types.includes('pizza_restaurant')) score -= 0.35;
-  if (types.includes('fast_food_restaurant')) score -= 0.15;
-  
+  if (types.includes('fast_food_restaurant')) score -= 0.05;
+
   return Math.max(0.2, Math.min(1.0, score));
 }
 
@@ -644,7 +1123,27 @@ function getCuisineType(types) {
 }
 
 function getDiningOptions(place) {
-  return ['Dine-in', 'Takeout'];
+  const types = (place.types || []).map(t => t.toLowerCase());
+  const name = (place.displayName?.text || '').toLowerCase();
+  const options = ['Dine-in', 'Takeout'];
+
+  // Drive-through: explicit type or name signal
+  if (types.includes('drive_through') || name.includes('drive-through') || name.includes('drive thru')) {
+    options.push('Drive-through');
+  }
+
+  // Delivery: fast-food and quick-service chains almost always offer it
+  if (types.includes('fast_food_restaurant') || types.includes('meal_takeaway')) {
+    options.push('Delivery');
+  }
+
+  // Outdoor seating: bars, restaurants with 'garden', 'patio', 'outdoor' in name
+  if (types.includes('bar') || types.includes('outdoor_restaurant') ||
+      name.includes('patio') || name.includes('garden') || name.includes('outdoor')) {
+    options.push('Outdoor Seating');
+  }
+
+  return options;
 }
 
 function calculateDistance(lat1, lon1, lat2, lon2) {

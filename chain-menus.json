@@ -1,0 +1,1459 @@
+{
+  "mcdonalds": {
+    "chainName": "McDonald's",
+    "source": "Calculated from McDonald's official component nutrition data",
+    "lastUpdated": "2025-01",
+    "orderTips": [
+      "Order bunless burgers through the McDonald's app under 'Customizations'",
+      "Ask for breakfast items 'no biscuit' – they'll serve in a container with a fork",
+      "Avoid ketchup (2g carbs per packet) if you're strict"
+    ],
+    "combos": [
+      {
+        "name": "Bunless Hamburger",
+        "calories": 250,
+        "carbs": 2,
+        "fat": 13,
+        "protein": 13,
+        "orderAs": "Hamburger → No Bun"
+      },
+      {
+        "name": "Bunless Cheeseburger",
+        "calories": 290,
+        "carbs": 3,
+        "fat": 17,
+        "protein": 15,
+        "orderAs": "Cheeseburger → No Bun"
+      },
+      {
+        "name": "Bunless Double Cheeseburger",
+        "calories": 350,
+        "carbs": 4,
+        "fat": 23,
+        "protein": 21,
+        "orderAs": "Double Cheeseburger → No Bun"
+      },
+      {
+        "name": "Bunless Quarter Pounder w/ Cheese",
+        "calories": 500,
+        "carbs": 4,
+        "fat": 30,
+        "protein": 34,
+        "orderAs": "Quarter Pounder w/ Cheese → No Bun"
+      },
+      {
+        "name": "Bunless QP w/ Cheese & Bacon",
+        "calories": 540,
+        "carbs": 4,
+        "fat": 33,
+        "protein": 38,
+        "orderAs": "Quarter Pounder w/ Cheese & Bacon → No Bun"
+      },
+      {
+        "name": "Bacon Egg & Cheese (No Biscuit)",
+        "calories": 310,
+        "carbs": 2,
+        "fat": 22,
+        "protein": 18,
+        "orderAs": "Bacon Egg & Cheese Biscuit → No Biscuit"
+      },
+      {
+        "name": "Sausage Egg & Cheese (No Biscuit)",
+        "calories": 390,
+        "carbs": 3,
+        "fat": 30,
+        "protein": 19,
+        "orderAs": "Sausage Egg & Cheese Biscuit → No Biscuit"
+      },
+      {
+        "name": "Double Bacon Egg & Cheese (No Biscuit)",
+        "calories": 430,
+        "carbs": 3,
+        "fat": 30,
+        "protein": 28,
+        "orderAs": "Double Bacon Egg & Cheese → No Biscuit"
+      },
+      {
+        "name": "Side Salad (No Dressing)",
+        "calories": 15,
+        "carbs": 4,
+        "fat": 0,
+        "protein": 1,
+        "orderAs": "Side Salad → No Dressing"
+      }
+    ],
+    "components": {
+      "note": "Individual ingredient nutrition for building custom combos",
+      "items": [
+        {
+          "name": "Beef Patty (1.6 oz)",
+          "calories": 100,
+          "carbs": 0,
+          "fat": 6,
+          "protein": 10
+        },
+        {
+          "name": "Quarter Pounder Patty (4 oz)",
+          "calories": 230,
+          "carbs": 0,
+          "fat": 14,
+          "protein": 26
+        },
+        {
+          "name": "Sausage Patty",
+          "calories": 280,
+          "carbs": 1,
+          "fat": 23,
+          "protein": 13
+        },
+        {
+          "name": "Round Egg",
+          "calories": 80,
+          "carbs": 1,
+          "fat": 5,
+          "protein": 6
+        },
+        {
+          "name": "Scrambled Eggs",
+          "calories": 70,
+          "carbs": 1,
+          "fat": 4,
+          "protein": 5
+        },
+        {
+          "name": "Bacon (2 strips)",
+          "calories": 80,
+          "carbs": 0,
+          "fat": 7,
+          "protein": 5
+        },
+        {
+          "name": "American Cheese",
+          "calories": 40,
+          "carbs": 1,
+          "fat": 3,
+          "protein": 2
+        },
+        {
+          "name": "Ketchup (1 packet)",
+          "calories": 15,
+          "carbs": 2,
+          "fat": 0,
+          "protein": 0
+        },
+        {
+          "name": "Ranch Dressing (1 packet)",
+          "calories": 160,
+          "carbs": 2,
+          "fat": 16,
+          "protein": 0
+        }
+      ]
+    },
+    "ketoNaturalness": 0.65
+  },
+  "burgerking": {
+    "chainName": "Burger King",
+    "source": "Verified from BK nutrition data via KetoConnect, CarbManager, MyNetDiary",
+    "lastUpdated": "2025-01",
+    "orderTips": [
+      "Order any burger 'no bun' – BK serves it in a container with a fork",
+      "Always say 'no ketchup' – it has sugar and adds carbs",
+      "For breakfast, say 'no croissant' on any Croissan'wich",
+      "The Bacon King is the biggest keto bang for your buck"
+    ],
+    "combos": [
+      {
+        "name": "Whopper (No Bun, No Ketchup)",
+        "calories": 320,
+        "carbs": 1,
+        "fat": 24,
+        "protein": 24,
+        "orderAs": "Whopper → No Bun, No Ketchup"
+      },
+      {
+        "name": "Bacon King (No Bun, No Ketchup)",
+        "calories": 640,
+        "carbs": 3,
+        "fat": 49,
+        "protein": 48,
+        "orderAs": "Bacon King → No Bun, No Ketchup"
+      },
+      {
+        "name": "Double Whopper w/ Cheese (No Bun)",
+        "calories": 590,
+        "carbs": 8,
+        "fat": 47,
+        "protein": 34,
+        "orderAs": "Double Whopper w/ Cheese → No Bun, No Ketchup"
+      },
+      {
+        "name": "Bacon Double Cheeseburger (No Bun)",
+        "calories": 280,
+        "carbs": 4,
+        "fat": 21,
+        "protein": 21,
+        "orderAs": "Bacon Double Cheeseburger → No Bun, No Ketchup"
+      },
+      {
+        "name": "Bacon Egg & Cheese Croissan'wich (No Croissant)",
+        "calories": 310,
+        "carbs": 3,
+        "fat": 26,
+        "protein": 15,
+        "orderAs": "Bacon Egg & Cheese Croissan'wich → No Croissant"
+      },
+      {
+        "name": "Sausage Egg & Cheese Croissan'wich (No Croissant)",
+        "calories": 485,
+        "carbs": 2,
+        "fat": 39,
+        "protein": 31,
+        "orderAs": "Sausage Egg & Cheese Croissan'wich → No Croissant"
+      },
+      {
+        "name": "Ham Egg & Cheese Croissan'wich (No Croissant)",
+        "calories": 310,
+        "carbs": 3,
+        "fat": 26,
+        "protein": 15,
+        "orderAs": "Ham Egg & Cheese Croissan'wich → No Croissant"
+      },
+      {
+        "name": "Grilled Chicken Club Salad (No Croutons)",
+        "calories": 490,
+        "carbs": 8,
+        "fat": 35,
+        "protein": 35,
+        "orderAs": "Grilled Chicken Club Salad → No Croutons, Ranch on side"
+      }
+    ],
+    "ketoNaturalness": 0.65
+  },
+  "wendys": {
+    "chainName": "Wendy's",
+    "source": "Verified from Wendy's nutrition calculator via Hip2Keto, NoBunPlease, KetoConnect",
+    "lastUpdated": "2025-01",
+    "orderTips": [
+      "All burgers can be ordered no bun – they come in a clamshell with a fork",
+      "Skip ketchup on everything – it adds sugar carbs",
+      "Cheese is included by default even when ordering 'plain' – specify if you want it removed",
+      "Breakfast items: say 'no bun' or 'no biscuit' and they serve in a cup"
+    ],
+    "combos": [
+      {
+        "name": "Dave's Single (No Bun, No Ketchup)",
+        "calories": 380,
+        "carbs": 5,
+        "fat": 32,
+        "protein": 25,
+        "orderAs": "Dave's Single → No Bun, No Ketchup"
+      },
+      {
+        "name": "Dave's Double (No Bun, No Ketchup)",
+        "calories": 640,
+        "carbs": 6,
+        "fat": 49,
+        "protein": 44,
+        "orderAs": "Dave's Double → No Bun, No Ketchup"
+      },
+      {
+        "name": "Baconator (No Bun, No Ketchup)",
+        "calories": 740,
+        "carbs": 6,
+        "fat": 57,
+        "protein": 52,
+        "orderAs": "Baconator → No Bun, No Ketchup"
+      },
+      {
+        "name": "Son of Baconator (No Bun)",
+        "calories": 450,
+        "carbs": 3,
+        "fat": 37,
+        "protein": 29,
+        "orderAs": "Son of Baconator → No Bun, No Ketchup"
+      },
+      {
+        "name": "Jr. Bacon Cheeseburger (No Bun)",
+        "calories": 260,
+        "carbs": 3,
+        "fat": 21,
+        "protein": 15,
+        "orderAs": "Jr. Bacon Cheeseburger → No Bun"
+      },
+      {
+        "name": "Bacon Egg & Cheese (No Bun)",
+        "calories": 190,
+        "carbs": 2,
+        "fat": 14,
+        "protein": 13,
+        "orderAs": "Bacon Egg & Cheese → No Bun"
+      },
+      {
+        "name": "Sausage Egg & Cheese (No Bun)",
+        "calories": 370,
+        "carbs": 3,
+        "fat": 27,
+        "protein": 17,
+        "orderAs": "Sausage Egg & Cheese → No Bun"
+      },
+      {
+        "name": "Breakfast Baconator (No Bun)",
+        "calories": 560,
+        "carbs": 6,
+        "fat": 44,
+        "protein": 29,
+        "orderAs": "Breakfast Baconator → No Bun"
+      },
+      {
+        "name": "Grilled Chicken Sandwich (No Bun)",
+        "calories": 180,
+        "carbs": 2,
+        "fat": 8,
+        "protein": 27,
+        "orderAs": "Grilled Chicken Sandwich → No Bun, Ranch on side"
+      }
+    ],
+    "ketoNaturalness": 0.7
+  },
+  "fiveguys": {
+    "chainName": "Five Guys",
+    "source": "Verified from Five Guys official nutrition via KetoConnect, Hip2Keto, CarbManager",
+    "lastUpdated": "2025-01",
+    "orderTips": [
+      "Say 'in a bowl' or 'bunless' – Five Guys officially supports this",
+      "All toppings are FREE – load up on cheese, bacon, lettuce, mayo, pickles, mushrooms",
+      "Extra cheese and bacon are free on the Bacon Cheeseburger specifically",
+      "Skip ketchup and relish (both have sugar) – mustard and mayo are 0 carbs",
+      "A 'Hamburger' at Five Guys is actually 2 patties – order a 'Little Hamburger' for 1 patty"
+    ],
+    "combos": [
+      {
+        "name": "Bunless Hamburger (2 patties)",
+        "calories": 440,
+        "carbs": 0,
+        "fat": 34,
+        "protein": 36,
+        "orderAs": "Hamburger → In a Bowl (bunless)"
+      },
+      {
+        "name": "Bunless Cheeseburger (2 patties)",
+        "calories": 580,
+        "carbs": 1,
+        "fat": 46,
+        "protein": 40,
+        "orderAs": "Cheeseburger → In a Bowl (bunless)"
+      },
+      {
+        "name": "Bunless Bacon Cheeseburger (2 patties)",
+        "calories": 824,
+        "carbs": 2,
+        "fat": 53,
+        "protein": 48,
+        "orderAs": "Bacon Cheeseburger → In a Bowl (bunless)"
+      },
+      {
+        "name": "Little Bunless Cheeseburger (1 patty)",
+        "calories": 290,
+        "carbs": 1,
+        "fat": 23,
+        "protein": 20,
+        "orderAs": "Little Cheeseburger → In a Bowl (bunless)"
+      },
+      {
+        "name": "Little Bunless Bacon Cheeseburger (1 patty)",
+        "calories": 370,
+        "carbs": 1,
+        "fat": 27,
+        "protein": 26,
+        "orderAs": "Little Bacon Cheeseburger → In a Bowl (bunless)"
+      },
+      {
+        "name": "Bunless Hot Dog",
+        "calories": 310,
+        "carbs": 3,
+        "fat": 26,
+        "protein": 15,
+        "orderAs": "Hot Dog → In a Bowl (no bun)"
+      },
+      {
+        "name": "Bacon Cheese Hot Dog (No Bun)",
+        "calories": 520,
+        "carbs": 2,
+        "fat": 36,
+        "protein": 30,
+        "orderAs": "Bacon Cheese Dog → In a Bowl (no bun)"
+      }
+    ],
+    "components": {
+      "note": "Free toppings – add these to any burger at no charge or carb cost",
+      "items": [
+        {
+          "name": "Hamburger Patty (3.3 oz)",
+          "calories": 302,
+          "carbs": 0,
+          "fat": 17,
+          "protein": 16
+        },
+        {
+          "name": "American Cheese (1 slice)",
+          "calories": 70,
+          "carbs": 1,
+          "fat": 6,
+          "protein": 4
+        },
+        {
+          "name": "Bacon (2 strips)",
+          "calories": 80,
+          "carbs": 0,
+          "fat": 7,
+          "protein": 4
+        },
+        {
+          "name": "Mayo",
+          "calories": 100,
+          "carbs": 0,
+          "fat": 11,
+          "protein": 0
+        },
+        {
+          "name": "Mustard",
+          "calories": 0,
+          "carbs": 0,
+          "fat": 0,
+          "protein": 0
+        },
+        {
+          "name": "Lettuce",
+          "calories": 3,
+          "carbs": 1,
+          "fat": 0,
+          "protein": 0
+        },
+        {
+          "name": "Grilled Mushrooms",
+          "calories": 19,
+          "carbs": 1,
+          "fat": 0,
+          "protein": 0
+        },
+        {
+          "name": "Jalapenos",
+          "calories": 3,
+          "carbs": 0,
+          "fat": 0,
+          "protein": 0
+        },
+        {
+          "name": "Hot Sauce",
+          "calories": 0,
+          "carbs": 0,
+          "fat": 0,
+          "protein": 0
+        }
+      ]
+    },
+    "ketoNaturalness": 0.85
+  },
+  "chickfila": {
+    "chainName": "Chick-fil-A",
+    "source": "Verified from Chick-fil-A official nutrition guide via KetoConnect, Women's Health, NoBunPlease",
+    "lastUpdated": "2025-01",
+    "orderTips": [
+      "GRILLED nuggets are the star – only 1g carbs for 8 pieces. Avoid the breaded originals (11g carbs)",
+      "Any sandwich can be ordered 'no bun' – they serve it on lettuce",
+      "Best dipping sauces: Zesty Buffalo (1g carbs), Garden Herb Ranch (1g carbs)",
+      "Avoid Chick-fil-A Sauce (8g carbs) and Polynesian Sauce (high sugar)",
+      "For breakfast, order the Egg White Grill with no English muffin",
+      "On salads, skip the crispy bell peppers and corn – they add carbs"
+    ],
+    "combos": [
+      {
+        "name": "8pc Grilled Nuggets",
+        "calories": 130,
+        "carbs": 1,
+        "fat": 3,
+        "protein": 25,
+        "orderAs": "8-Count Grilled Nuggets"
+      },
+      {
+        "name": "12pc Grilled Nuggets",
+        "calories": 200,
+        "carbs": 2,
+        "fat": 4.5,
+        "protein": 38,
+        "orderAs": "12-Count Grilled Nuggets"
+      },
+      {
+        "name": "Grilled Chicken Sandwich (No Bun)",
+        "calories": 130,
+        "carbs": 4,
+        "fat": 3.5,
+        "protein": 23,
+        "orderAs": "Grilled Chicken Sandwich → No Bun"
+      },
+      {
+        "name": "Grilled Chicken Club (No Bun)",
+        "calories": 260,
+        "carbs": 4,
+        "fat": 13.5,
+        "protein": 32,
+        "orderAs": "Grilled Chicken Club → No Bun, No BBQ Sauce"
+      },
+      {
+        "name": "Egg White Grill (No English Muffin)",
+        "calories": 300,
+        "carbs": 1,
+        "fat": 7,
+        "protein": 25,
+        "orderAs": "Egg White Grill → No English Muffin"
+      },
+      {
+        "name": "Bacon Egg & Cheese (No Biscuit)",
+        "calories": 270,
+        "carbs": 6,
+        "fat": 18,
+        "protein": 19,
+        "orderAs": "Bacon Egg & Cheese Biscuit → No Biscuit"
+      },
+      {
+        "name": "Cobb Salad w/ Grilled Chicken (No Corn)",
+        "calories": 550,
+        "carbs": 10,
+        "fat": 19,
+        "protein": 36,
+        "orderAs": "Cobb Salad → Grilled Chicken, No Corn, No Crispy Bell Peppers, Avocado Lime Ranch"
+      },
+      {
+        "name": "Side Salad (No Dressing)",
+        "calories": 40,
+        "carbs": 2,
+        "fat": 1,
+        "protein": 2,
+        "orderAs": "Side Salad → No Crispy Bell Peppers, No Dressing"
+      }
+    ],
+    "ketoNaturalness": 0.75
+  },
+  "subway": {
+    "chainName": "Subway",
+    "source": "Verified from Subway nutrition guide via Hip2Keto, KetoConnect, WebMD",
+    "lastUpdated": "2025-01",
+    "orderTips": [
+      "Order PROTEIN BOWLS – same fillings as a footlong sub but no bread at all",
+      "Any sub can also be made 'no bread' and served in a bowl with a fork",
+      "Double the meat for more protein and fat – only costs a little extra",
+      "Avoid Sweet Onion sauce and Honey Mustard – both are high sugar",
+      "Best dressings: Oil & Vinegar (0g carbs), Caesar (0g carbs), Ranch (1g carbs)",
+      "Add bacon, cheese, and guacamole to boost fat content"
+    ],
+    "combos": [
+      {
+        "name": "Chicken & Bacon Ranch Protein Bowl",
+        "calories": 750,
+        "carbs": 11,
+        "fat": 55,
+        "protein": 55,
+        "orderAs": "Chicken & Bacon Ranch Protein Bowl (footlong)"
+      },
+      {
+        "name": "Tuna Protein Bowl",
+        "calories": 550,
+        "carbs": 8,
+        "fat": 47,
+        "protein": 26,
+        "orderAs": "Tuna Protein Bowl"
+      },
+      {
+        "name": "Italian B.M.T. Protein Bowl",
+        "calories": 410,
+        "carbs": 11,
+        "fat": 29,
+        "protein": 25,
+        "orderAs": "Italian B.M.T. Protein Bowl → Oil & Vinegar dressing"
+      },
+      {
+        "name": "Cold Cut Combo Protein Bowl",
+        "calories": 260,
+        "carbs": 9,
+        "fat": 16,
+        "protein": 20,
+        "orderAs": "Cold Cut Combo Protein Bowl → Oil & Vinegar dressing"
+      },
+      {
+        "name": "Rotisserie Chicken Protein Bowl",
+        "calories": 220,
+        "carbs": 8,
+        "fat": 8,
+        "protein": 31,
+        "orderAs": "Rotisserie Chicken Protein Bowl → add cheese & bacon"
+      },
+      {
+        "name": "Steak & Cheese Protein Bowl",
+        "calories": 380,
+        "carbs": 12,
+        "fat": 19,
+        "protein": 42,
+        "orderAs": "Steak & Cheese Protein Bowl (w/ American cheese)"
+      },
+      {
+        "name": "Bacon Egg & Cheese (No Flatbread)",
+        "calories": 230,
+        "carbs": 4,
+        "fat": 16,
+        "protein": 16,
+        "orderAs": "Bacon Egg & Cheese Breakfast → No Flatbread, served in a cup"
+      },
+      {
+        "name": "Steak Egg & Cheese (No Flatbread)",
+        "calories": 220,
+        "carbs": 5,
+        "fat": 14,
+        "protein": 19,
+        "orderAs": "Steak Egg & Cheese Breakfast → No Flatbread, served in a cup"
+      }
+    ],
+    "ketoNaturalness": 0.55
+  },
+  "buffalowildwings": {
+    "chainName": "Buffalo Wild Wings",
+    "source": "Verified from BWW official nutrition guide via KetoConnect, Sated, Left Coast Performance",
+    "lastUpdated": "2025-01",
+    "orderTips": [
+      "CRITICAL: Order TRADITIONAL (bone-in) wings – they are 0g carbs. Boneless wings are BREADED and have 50g+ carbs",
+      "Dry rubs add only 1-3g carbs total – great flavor with almost no carb impact",
+      "Best sauces: Mild (1g), Medium (1g), Hot (2g), Spicy Garlic (2g), Original Buffalo (3g)",
+      "AVOID: Asian Zing (21g carbs!), Honey BBQ, and any sweet sauces",
+      "Skip the carrots that come with wings (4g carbs) – ask for celery only (1g carbs)",
+      "Ranch and Blue Cheese dressings are both 2-3g carbs per serving"
+    ],
+    "combos": [
+      {
+        "name": "Traditional Wings 6ct (Plain)",
+        "calories": 430,
+        "carbs": 0,
+        "fat": 24,
+        "protein": 53,
+        "orderAs": "6-Count Traditional Wings → Plain (no sauce)"
+      },
+      {
+        "name": "Traditional Wings 10ct (Plain)",
+        "calories": 720,
+        "carbs": 0,
+        "fat": 41,
+        "protein": 88,
+        "orderAs": "10-Count Traditional Wings → Plain (no sauce)"
+      },
+      {
+        "name": "Traditional Wings 10ct w/ Hot Sauce",
+        "calories": 765,
+        "carbs": 2,
+        "fat": 45,
+        "protein": 88,
+        "orderAs": "10-Count Traditional Wings → Hot Sauce"
+      },
+      {
+        "name": "Traditional Wings 10ct w/ Any Dry Rub",
+        "calories": 725,
+        "carbs": 2,
+        "fat": 41,
+        "protein": 88,
+        "orderAs": "10-Count Traditional Wings → choose any Dry Rub seasoning"
+      },
+      {
+        "name": "Traditional Wings 10ct w/ Parmesan Garlic",
+        "calories": 870,
+        "carbs": 3,
+        "fat": 60,
+        "protein": 88,
+        "orderAs": "10-Count Traditional Wings → Parmesan Garlic sauce"
+      },
+      {
+        "name": "Naked Tenders (3pc)",
+        "calories": 160,
+        "carbs": 0,
+        "fat": 1,
+        "protein": 37,
+        "orderAs": "3-Piece Naked Tenders (high protein, note: high sodium)"
+      },
+      {
+        "name": "Burger Patty (No Bun) w/ Cheddar",
+        "calories": 360,
+        "carbs": 0,
+        "fat": 27,
+        "protein": 27,
+        "orderAs": "Any burger → Patty Only, No Bun, add Cheddar cheese"
+      },
+      {
+        "name": "Grilled Chicken Breast",
+        "calories": 90,
+        "carbs": 1,
+        "fat": 1,
+        "protein": 21,
+        "orderAs": "Grilled Chicken Breast (great as salad base)"
+      }
+    ],
+    "ketoNaturalness": 0.9
+  },
+  "outback": {
+    "chainName": "Outback Steakhouse",
+    "source": "Standard steakhouse nutrition – steaks are naturally 0g carbs. Verify sauces/sides at location",
+    "lastUpdated": "2025-01",
+    "orderTips": [
+      "Steakhouses are naturally keto-friendly – steaks and grilled proteins have 0g carbs",
+      "AVOID the Bloomin' Onion (huge carb bomb) and any breaded items",
+      "Get steaks with butter, not the house sauce (check if sauce has sugar)",
+      "Sub any potato side for a double portion of seasonal veggies",
+      "Caesar salad is safe – just say no croutons",
+      "Grilled shrimp and salmon are great lower-calorie keto options"
+    ],
+    "combos": [
+      {
+        "name": "12oz Ribeye Steak",
+        "calories": 460,
+        "carbs": 0,
+        "fat": 28,
+        "protein": 52,
+        "orderAs": "12oz Ribeye → with butter, sub veggies for potato"
+      },
+      {
+        "name": "8oz Sirloin Steak",
+        "calories": 340,
+        "carbs": 0,
+        "fat": 18,
+        "protein": 42,
+        "orderAs": "8oz Sirloin → with butter, sub veggies for potato"
+      },
+      {
+        "name": "16oz Porterhouse Steak",
+        "calories": 680,
+        "carbs": 0,
+        "fat": 44,
+        "protein": 68,
+        "orderAs": "16oz Porterhouse → with butter, sub veggies for potato"
+      },
+      {
+        "name": "Grilled Chicken Breast",
+        "calories": 230,
+        "carbs": 1,
+        "fat": 8,
+        "protein": 36,
+        "orderAs": "Grilled Chicken → no sauce, sub veggies for potato"
+      },
+      {
+        "name": "Grilled Salmon",
+        "calories": 400,
+        "carbs": 0,
+        "fat": 22,
+        "protein": 48,
+        "orderAs": "Grilled Salmon → lemon butter, sub veggies for potato"
+      },
+      {
+        "name": "Grilled Shrimp",
+        "calories": 190,
+        "carbs": 1,
+        "fat": 6,
+        "protein": 30,
+        "orderAs": "Grilled Shrimp → garlic butter, sub veggies for potato"
+      },
+      {
+        "name": "Caesar Salad (No Croutons)",
+        "calories": 250,
+        "carbs": 6,
+        "fat": 18,
+        "protein": 12,
+        "orderAs": "Caesar Salad → No Croutons, dressing on the side"
+      }
+    ],
+    "ketoNaturalness": 0.95
+  },
+  "chipotle": {
+    "chainName": "Chipotle",
+    "source": "Verified from Chipotle official nutrition calculator via KetoConnect, Hip2Keto, CarbManager",
+    "lastUpdated": "2025-02",
+    "orderTips": [
+      "ORDER A BOWL – it's the same as a burrito but without the tortilla (40g carbs saved)",
+      "Say 'lettuce base' or 'extra lettuce' instead of rice – rice adds 40g carbs",
+      "NO BEANS – black beans add 20g carbs, pinto beans add 22g carbs",
+      "SKIP fajita veggies – they add 6g carbs. Go straight to protein + cheese + sour cream",
+      "Guacamole adds ~8g carbs but is high in healthy fat – your call based on strictness",
+      "Sour cream and cheese are both essentially 0-1g carbs – load up on both"
+    ],
+    "combos": [
+      {
+        "name": "Steak Bowl (Lettuce, No Rice/Beans)",
+        "calories": 285,
+        "carbs": 1,
+        "fat": 14,
+        "protein": 28,
+        "orderAs": "Bowl → Steak, Lettuce base, No Rice, No Beans, Cheese, Sour Cream"
+      },
+      {
+        "name": "Chicken Bowl (Lettuce, No Rice/Beans)",
+        "calories": 250,
+        "carbs": 1,
+        "fat": 12,
+        "protein": 26,
+        "orderAs": "Bowl → Chicken, Lettuce base, No Rice, No Beans, Cheese, Sour Cream"
+      },
+      {
+        "name": "Carnitas Bowl (Lettuce, No Rice/Beans)",
+        "calories": 270,
+        "carbs": 1,
+        "fat": 15,
+        "protein": 24,
+        "orderAs": "Bowl → Carnitas, Lettuce base, No Rice, No Beans, Cheese, Sour Cream"
+      },
+      {
+        "name": "Barbacoa Bowl (Lettuce, No Rice/Beans)",
+        "calories": 260,
+        "carbs": 1,
+        "fat": 13,
+        "protein": 26,
+        "orderAs": "Bowl → Barbacoa, Lettuce base, No Rice, No Beans, Cheese, Sour Cream"
+      },
+      {
+        "name": "Steak Bowl + Guac (Lettuce, No Rice/Beans)",
+        "calories": 385,
+        "carbs": 9,
+        "fat": 22,
+        "protein": 28,
+        "orderAs": "Bowl → Steak, Lettuce base, No Rice, No Beans, Cheese, Sour Cream, Guacamole"
+      },
+      {
+        "name": "Double Steak Bowl (Lettuce, No Rice/Beans)",
+        "calories": 420,
+        "carbs": 1,
+        "fat": 22,
+        "protein": 50,
+        "orderAs": "Bowl → Double Steak, Lettuce base, No Rice, No Beans, Cheese, Sour Cream"
+      },
+      {
+        "name": "Chicken Salad (No Dressing)",
+        "calories": 230,
+        "carbs": 2,
+        "fat": 11,
+        "protein": 26,
+        "orderAs": "Salad → Chicken, No Dressing (use sour cream + salsa instead)"
+      }
+    ],
+    "components": {
+      "note": "Individual add-ons for building custom bowls",
+      "items": [
+        {
+          "name": "Steak (4oz)",
+          "calories": 150,
+          "carbs": 0,
+          "fat": 7,
+          "protein": 22
+        },
+        {
+          "name": "Chicken (4oz)",
+          "calories": 120,
+          "carbs": 0,
+          "fat": 5,
+          "protein": 20
+        },
+        {
+          "name": "Carnitas (4oz)",
+          "calories": 140,
+          "carbs": 0,
+          "fat": 8,
+          "protein": 18
+        },
+        {
+          "name": "Barbacoa (4oz)",
+          "calories": 130,
+          "carbs": 0,
+          "fat": 6,
+          "protein": 20
+        },
+        {
+          "name": "Shredded Cheese",
+          "calories": 110,
+          "carbs": 1,
+          "fat": 9,
+          "protein": 7
+        },
+        {
+          "name": "Sour Cream",
+          "calories": 60,
+          "carbs": 1,
+          "fat": 5,
+          "protein": 1
+        },
+        {
+          "name": "Guacamole",
+          "calories": 100,
+          "carbs": 8,
+          "fat": 8,
+          "protein": 1
+        },
+        {
+          "name": "Pico de Gallo",
+          "calories": 10,
+          "carbs": 1,
+          "fat": 0,
+          "protein": 0
+        },
+        {
+          "name": "Tomatillo Salsa",
+          "calories": 15,
+          "carbs": 2,
+          "fat": 0,
+          "protein": 0
+        }
+      ]
+    },
+    "ketoNaturalness": 0.75
+  },
+  "innout": {
+    "chainName": "In-N-Out Burger",
+    "source": "Estimated from In-N-Out official component nutrition. 'Protein Style' nutrition not officially published – calculated from individual ingredients",
+    "lastUpdated": "2025-02",
+    "orderTips": [
+      "Say 'PROTEIN STYLE' – this is an official menu option that wraps everything in lettuce instead of a bun",
+      "A 'Double-Double' is 2 patties + 2 cheese – say 'Protein Style' to make it keto",
+      "AVOID 'Animal Style' if strict – the special sauce and spread contain sugar (~3-4g carbs each)",
+      "Mustard-grilled patties are 0g carbs and add great flavor – say 'mustard grilled'",
+      "Tomato and onion add ~2g carbs combined – skip if you're under 20g/day strict",
+      "Plain fries have carbs – skip them entirely"
+    ],
+    "combos": [
+      {
+        "name": "Single Cheeseburger (Protein Style)",
+        "calories": 300,
+        "carbs": 5,
+        "fat": 22,
+        "protein": 22,
+        "orderAs": "Cheeseburger → Protein Style"
+      },
+      {
+        "name": "Double-Double (Protein Style)",
+        "calories": 490,
+        "carbs": 6,
+        "fat": 38,
+        "protein": 36,
+        "orderAs": "Double-Double → Protein Style"
+      },
+      {
+        "name": "Single Cheeseburger (Protein Style, No Spread)",
+        "calories": 260,
+        "carbs": 3,
+        "fat": 19,
+        "protein": 22,
+        "orderAs": "Cheeseburger → Protein Style, No Spread"
+      },
+      {
+        "name": "Double-Double (Protein Style, No Spread)",
+        "calories": 450,
+        "carbs": 4,
+        "fat": 35,
+        "protein": 36,
+        "orderAs": "Double-Double → Protein Style, No Spread"
+      },
+      {
+        "name": "Double-Double (Protein Style, Mustard Grilled)",
+        "calories": 490,
+        "carbs": 6,
+        "fat": 38,
+        "protein": 36,
+        "orderAs": "Double-Double → Protein Style, Mustard Grilled"
+      },
+      {
+        "name": "Triple (Protein Style)",
+        "calories": 600,
+        "carbs": 6,
+        "fat": 48,
+        "protein": 50,
+        "orderAs": "Triple → Protein Style, 1 Cheese"
+      }
+    ],
+    "components": {
+      "note": "In-N-Out patties and toppings for custom builds",
+      "items": [
+        {
+          "name": "Beef Patty (1.6 oz)",
+          "calories": 100,
+          "carbs": 0,
+          "fat": 7,
+          "protein": 12
+        },
+        {
+          "name": "American Cheese (1 slice)",
+          "calories": 50,
+          "carbs": 0,
+          "fat": 4,
+          "protein": 3
+        },
+        {
+          "name": "Lettuce Wrap",
+          "calories": 5,
+          "carbs": 1,
+          "fat": 0,
+          "protein": 0
+        },
+        {
+          "name": "Tomato (1 slice)",
+          "calories": 5,
+          "carbs": 1,
+          "fat": 0,
+          "protein": 0
+        },
+        {
+          "name": "Onion",
+          "calories": 5,
+          "carbs": 1,
+          "fat": 0,
+          "protein": 0
+        },
+        {
+          "name": "Special Spread (1 tbsp)",
+          "calories": 80,
+          "carbs": 2,
+          "fat": 8,
+          "protein": 0
+        },
+        {
+          "name": "Mustard",
+          "calories": 5,
+          "carbs": 0,
+          "fat": 0,
+          "protein": 0
+        },
+        {
+          "name": "Ketchup",
+          "calories": 15,
+          "carbs": 2,
+          "fat": 0,
+          "protein": 0
+        }
+      ]
+    },
+    "ketoNaturalness": 0.7
+  },
+  "tacobell": {
+    "chainName": "Taco Bell",
+    "source": "Verified from Taco Bell official nutrition guide via KetoConnect, Hip2Keto, TacoBeKeto",
+    "lastUpdated": "2025-02",
+    "orderTips": [
+      "ORDER A POWER BOWL – same fillings as a burrito but no tortilla (17g carbs saved)",
+      "Say 'no rice, no beans' on any Power Bowl – rice adds 19g carbs, beans add 10g",
+      "Seasoned beef has ~2-3g carbs from the spice blend – chicken and steak are lower",
+      "Sour cream and cheese are both 0-1g carbs – always add these",
+      "AVOID all tortillas (soft = 17g, crunchy shell = 7g each) if you're strict",
+      "Pico de Gallo and lettuce are both 0g carbs – great for adding volume"
+    ],
+    "combos": [
+      {
+        "name": "Chicken Power Bowl (No Rice/Beans)",
+        "calories": 280,
+        "carbs": 5,
+        "fat": 16,
+        "protein": 24,
+        "orderAs": "Chicken Power Bowl → No Rice, No Beans, add Sour Cream"
+      },
+      {
+        "name": "Steak Power Bowl (No Rice/Beans)",
+        "calories": 300,
+        "carbs": 5,
+        "fat": 17,
+        "protein": 26,
+        "orderAs": "Steak Power Bowl → No Rice, No Beans, add Sour Cream"
+      },
+      {
+        "name": "Beef Power Bowl (No Rice/Beans)",
+        "calories": 260,
+        "carbs": 7,
+        "fat": 15,
+        "protein": 20,
+        "orderAs": "Beef Power Bowl → No Rice, No Beans, add Sour Cream"
+      },
+      {
+        "name": "Chicken Naked Taco",
+        "calories": 170,
+        "carbs": 4,
+        "fat": 9,
+        "protein": 16,
+        "orderAs": "Chicken Naked Taco (lettuce wrap, no shell)"
+      },
+      {
+        "name": "Steak Naked Taco",
+        "calories": 180,
+        "carbs": 4,
+        "fat": 10,
+        "protein": 17,
+        "orderAs": "Steak Naked Taco (lettuce wrap, no shell)"
+      },
+      {
+        "name": "Cheese Quesadilla (Lettuce Wrap Only)",
+        "calories": 220,
+        "carbs": 3,
+        "fat": 16,
+        "protein": 12,
+        "orderAs": "Cheese Quesadilla → No tortilla, cheese and sauce on lettuce"
+      },
+      {
+        "name": "Crunchy Taco Supreme (Lettuce Wrap)",
+        "calories": 200,
+        "carbs": 5,
+        "fat": 12,
+        "protein": 14,
+        "orderAs": "Taco Supreme → Crunchy, sub lettuce for shell"
+      }
+    ],
+    "ketoNaturalness": 0.6
+  },
+  "texasroadhouse": {
+    "chainName": "Texas Roadhouse",
+    "source": "Standard steakhouse nutrition – steaks are naturally 0g carbs. Verified via Texas Roadhouse nutrition info and KetoConnect",
+    "lastUpdated": "2025-02",
+    "orderTips": [
+      "Steakhouses are naturally keto – all steaks and grilled proteins are 0g carbs",
+      "ALWAYS sub the baked potato for steamed veggies or house salad – potato is 40g+ carbs",
+      "Get steaks with butter, NOT the house seasoning butter (it has sugar) – ask for plain butter",
+      "AVOID the salad dressings – most have sugar. Ask for ranch or olive oil & vinegar",
+      "Caesar salad is safe – just say no croutons",
+      "The fresh-baked rolls are a keto trap – do not eat them"
+    ],
+    "combos": [
+      {
+        "name": "6oz Sirloin Steak",
+        "calories": 240,
+        "carbs": 0,
+        "fat": 12,
+        "protein": 28,
+        "orderAs": "6oz Sirloin → with butter, sub steamed veggies for potato"
+      },
+      {
+        "name": "8oz Ribeye Steak",
+        "calories": 370,
+        "carbs": 0,
+        "fat": 22,
+        "protein": 40,
+        "orderAs": "8oz Ribeye → with butter, sub steamed veggies for potato"
+      },
+      {
+        "name": "12oz Ribeye Steak",
+        "calories": 560,
+        "carbs": 0,
+        "fat": 34,
+        "protein": 60,
+        "orderAs": "12oz Ribeye → with butter, sub steamed veggies for potato"
+      },
+      {
+        "name": "8oz Filet Mignon",
+        "calories": 380,
+        "carbs": 0,
+        "fat": 20,
+        "protein": 46,
+        "orderAs": "8oz Filet Mignon → with butter, sub steamed veggies for potato"
+      },
+      {
+        "name": "Grilled Chicken Breast",
+        "calories": 230,
+        "carbs": 0,
+        "fat": 10,
+        "protein": 35,
+        "orderAs": "Grilled Chicken → no sauce, sub steamed veggies for potato"
+      },
+      {
+        "name": "Grilled Salmon",
+        "calories": 350,
+        "carbs": 0,
+        "fat": 18,
+        "protein": 42,
+        "orderAs": "Grilled Salmon → lemon butter, sub steamed veggies for potato"
+      },
+      {
+        "name": "Caesar Salad (No Croutons)",
+        "calories": 280,
+        "carbs": 6,
+        "fat": 20,
+        "protein": 14,
+        "orderAs": "Caesar Salad → No Croutons, dressing on the side"
+      },
+      {
+        "name": "Grilled Shrimp",
+        "calories": 200,
+        "carbs": 1,
+        "fat": 8,
+        "protein": 28,
+        "orderAs": "Grilled Shrimp → garlic butter, sub steamed veggies for potato"
+      }
+    ],
+    "ketoNaturalness": 0.95
+  },
+  "longhorn": {
+    "chainName": "LongHorn Steakhouse",
+    "source": "Standard steakhouse nutrition – steaks are naturally 0g carbs. Verified via LongHorn nutrition info and KetoConnect",
+    "lastUpdated": "2025-02",
+    "orderTips": [
+      "Same steakhouse rules as any – steaks are 0g carbs, sides are where the carbs hide",
+      "ALWAYS sub baked potato for steamed veggies or a side salad – potato is 40g+ carbs",
+      "Get steaks with butter only – skip the Flo's sauce (contains sugar)",
+      "Caesar salad is the safest salad – say no croutons",
+      "The Outlaw Ribeye is their signature – massive portion, 0g carbs",
+      "Grilled salmon and shrimp are great lower-calorie keto options"
+    ],
+    "combos": [
+      {
+        "name": "Outlaw Ribeye (18oz)",
+        "calories": 810,
+        "carbs": 0,
+        "fat": 50,
+        "protein": 90,
+        "orderAs": "Outlaw Ribeye → with butter, sub steamed veggies for potato"
+      },
+      {
+        "name": "12oz Ribeye Steak",
+        "calories": 540,
+        "carbs": 0,
+        "fat": 33,
+        "protein": 60,
+        "orderAs": "12oz Ribeye → with butter, sub steamed veggies for potato"
+      },
+      {
+        "name": "Flo's Filet (8oz)",
+        "calories": 420,
+        "carbs": 0,
+        "fat": 22,
+        "protein": 48,
+        "orderAs": "Flo's Filet → butter only (no Flo's sauce), sub steamed veggies for potato"
+      },
+      {
+        "name": "8oz Sirloin Steak",
+        "calories": 330,
+        "carbs": 0,
+        "fat": 18,
+        "protein": 40,
+        "orderAs": "8oz Sirloin → with butter, sub steamed veggies for potato"
+      },
+      {
+        "name": "Grilled Salmon",
+        "calories": 350,
+        "carbs": 0,
+        "fat": 18,
+        "protein": 42,
+        "orderAs": "Grilled Salmon → lemon butter, sub steamed veggies for potato"
+      },
+      {
+        "name": "Grilled Chicken Breast",
+        "calories": 230,
+        "carbs": 0,
+        "fat": 10,
+        "protein": 35,
+        "orderAs": "Grilled Chicken → no sauce, sub steamed veggies for potato"
+      },
+      {
+        "name": "Caesar Salad (No Croutons)",
+        "calories": 280,
+        "carbs": 6,
+        "fat": 20,
+        "protein": 14,
+        "orderAs": "Caesar Salad → No Croutons, dressing on the side"
+      }
+    ],
+    "ketoNaturalness": 0.95
+  },
+  "panera": {
+    "chainName": "Panera Bread",
+    "source": "Verified from Panera official nutrition calculator via KetoConnect, Hip2Keto, NoBunPlease",
+    "lastUpdated": "2025-02",
+    "orderTips": [
+      "SALADS are your best bet – Panera is a bread shop, so avoid anything with bread",
+      "Say 'no croutons' on every salad – croutons add 10-15g carbs",
+      "AVOID all soups – even 'healthy' soups have 20-46g carbs (Broccoli Cheddar = 46g!)",
+      "Breakfast sandwiches can be ordered 'on a plate' or 'no bread' – same fillings, no carbs",
+      "Avoid all dressings except Ranch (2g) and Caesar (1g) – most others have sugar",
+      "The Rapid Pick-Up app makes it easy to customize orders before you arrive"
+    ],
+    "combos": [
+      {
+        "name": "Chicken Caesar Salad (No Croutons)",
+        "calories": 500,
+        "carbs": 6,
+        "fat": 32,
+        "protein": 34,
+        "orderAs": "Chicken Caesar Salad → No Croutons, dressing on side"
+      },
+      {
+        "name": "Greek Salad (No Croutons)",
+        "calories": 340,
+        "carbs": 10,
+        "fat": 22,
+        "protein": 12,
+        "orderAs": "Greek Salad → No Croutons"
+      },
+      {
+        "name": "Steak & Arugula Salad (No Croutons)",
+        "calories": 450,
+        "carbs": 8,
+        "fat": 26,
+        "protein": 34,
+        "orderAs": "Steak & Arugula Salad → No Croutons, dressing on side"
+      },
+      {
+        "name": "Bacon, Egg & Cheese (No Bread)",
+        "calories": 310,
+        "carbs": 3,
+        "fat": 22,
+        "protein": 18,
+        "orderAs": "Bacon, Egg & Cheese Sandwich → No Bread, served on a plate"
+      },
+      {
+        "name": "Sausage, Egg & Cheese (No Bread)",
+        "calories": 380,
+        "carbs": 3,
+        "fat": 28,
+        "protein": 20,
+        "orderAs": "Sausage, Egg & Cheese Sandwich → No Bread, served on a plate"
+      },
+      {
+        "name": "Chicken Bacon Ranch Salad (No Croutons)",
+        "calories": 520,
+        "carbs": 7,
+        "fat": 34,
+        "protein": 36,
+        "orderAs": "Chicken Bacon Ranch Salad → No Croutons"
+      }
+    ],
+    "ketoNaturalness": 0.4
+  },
+  "wingstop": {
+    "chainName": "Wingstop",
+    "source": "Verified from Wingstop official nutrition guide via KetoConnect, Hip2Keto, CarbManager",
+    "lastUpdated": "2025-02",
+    "orderTips": [
+      "Classic (bone-in) wings are 0g carbs – they are the keto staple here",
+      "Lemon Pepper is the top keto flavor – it's a dry seasoning with 0g carbs",
+      "Original Hot and Garlic Parmesan are both low-carb sauce options (1-2g per serving)",
+      "AVOID: BBQ, Honey Garlic, Sweet Chili, and any sweet-sounding sauces (5-15g carbs each)",
+      "SKIP the seasoned fries entirely – they are 40g+ carbs",
+      "Ranch dipping sauce is only 1g carbs per serving – the safe dip"
+    ],
+    "combos": [
+      {
+        "name": "6pc Classic Wings (Lemon Pepper)",
+        "calories": 420,
+        "carbs": 0,
+        "fat": 24,
+        "protein": 48,
+        "orderAs": "6-Count Classic Wings → Lemon Pepper"
+      },
+      {
+        "name": "10pc Classic Wings (Lemon Pepper)",
+        "calories": 700,
+        "carbs": 0,
+        "fat": 40,
+        "protein": 80,
+        "orderAs": "10-Count Classic Wings → Lemon Pepper"
+      },
+      {
+        "name": "6pc Classic Wings (Original Hot)",
+        "calories": 430,
+        "carbs": 1,
+        "fat": 25,
+        "protein": 48,
+        "orderAs": "6-Count Classic Wings → Original Hot"
+      },
+      {
+        "name": "10pc Classic Wings (Original Hot)",
+        "calories": 720,
+        "carbs": 1,
+        "fat": 42,
+        "protein": 80,
+        "orderAs": "10-Count Classic Wings → Original Hot"
+      },
+      {
+        "name": "6pc Classic Wings (Garlic Parmesan)",
+        "calories": 480,
+        "carbs": 2,
+        "fat": 30,
+        "protein": 48,
+        "orderAs": "6-Count Classic Wings → Garlic Parmesan"
+      },
+      {
+        "name": "10pc Classic Wings (Garlic Parmesan)",
+        "calories": 800,
+        "carbs": 3,
+        "fat": 50,
+        "protein": 80,
+        "orderAs": "10-Count Classic Wings → Garlic Parmesan"
+      },
+      {
+        "name": "6pc Classic Wings (Plain/Dry)",
+        "calories": 420,
+        "carbs": 0,
+        "fat": 24,
+        "protein": 48,
+        "orderAs": "6-Count Classic Wings → Plain (no sauce), Ranch on side"
+      }
+    ],
+    "ketoNaturalness": 0.9
+  },
+  "dunkin": {
+    "chainName": "Dunkin'",
+    "source": "Verified from Dunkin' official nutrition guide via KetoConnect, Hip2Keto, NoBunPlease",
+    "lastUpdated": "2025-02",
+    "orderTips": [
+      "Breakfast sandwiches can all be ordered 'on a plate' or 'no bread' – same fillings minus the carbs",
+      "Black coffee and unsweetened iced coffee are 0g carbs – the only safe drink options",
+      "AVOID all flavored drinks, lattes, and anything with syrup – they are 40-80g carbs",
+      "Hash browns are 14g carbs each – skip them entirely",
+      "If you want cream in coffee, ask for heavy cream – it's 0g carbs vs regular cream",
+      "The app lets you customize orders – easiest way to say 'no bread' before you order"
+    ],
+    "combos": [
+      {
+        "name": "Bacon, Egg & Cheese (No Bread)",
+        "calories": 310,
+        "carbs": 2,
+        "fat": 22,
+        "protein": 20,
+        "orderAs": "Bacon, Egg & Cheese → No Bread (on a plate)"
+      },
+      {
+        "name": "Sausage, Egg & Cheese (No Bread)",
+        "calories": 370,
+        "carbs": 2,
+        "fat": 27,
+        "protein": 21,
+        "orderAs": "Sausage, Egg & Cheese → No Bread (on a plate)"
+      },
+      {
+        "name": "Egg & Cheese (No Bread)",
+        "calories": 240,
+        "carbs": 2,
+        "fat": 16,
+        "protein": 14,
+        "orderAs": "Egg & Cheese → No Bread (on a plate)"
+      },
+      {
+        "name": "Double Bacon, Egg & Cheese (No Bread)",
+        "calories": 430,
+        "carbs": 2,
+        "fat": 30,
+        "protein": 30,
+        "orderAs": "Double Bacon, Egg & Cheese → No Bread (on a plate)"
+      },
+      {
+        "name": "Black Coffee (Large)",
+        "calories": 5,
+        "carbs": 0,
+        "fat": 0,
+        "protein": 0,
+        "orderAs": "Large Black Coffee"
+      },
+      {
+        "name": "Iced Coffee Unsweetened (Large)",
+        "calories": 5,
+        "carbs": 0,
+        "fat": 0,
+        "protein": 0,
+        "orderAs": "Large Iced Coffee → No sweetener, no flavoring"
+      }
+    ],
+    "ketoNaturalness": 0.3
+  }
+}

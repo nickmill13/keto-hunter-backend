@@ -24,27 +24,39 @@ async function initDatabase() {
       )
     `);
 
-    // NEW: Derived NLP signals from Google reviews
+    // NLP signals derived from Google review analysis
     await pool.query(`
       CREATE TABLE IF NOT EXISTS restaurant_signals (
         restaurant_id VARCHAR(255) PRIMARY KEY,
         analyzed_at TIMESTAMP DEFAULT NOW(),
 
         keto_mentions INT DEFAULT 0,
-        lettuce_wrap_mentions INT DEFAULT 0,
-        bunless_mentions INT DEFAULT 0,
-        cauliflower_rice_mentions INT DEFAULT 0,
-
         accommodating_mentions INT DEFAULT 0,
-        substitution_mentions INT DEFAULT 0,
-
-        breaded_risk_mentions INT DEFAULT 0,
-        sweet_sauce_risk_mentions INT DEFAULT 0,
+        customization_mentions INT DEFAULT 0,
+        keto_food_mentions INT DEFAULT 0,
+        healthy_cooking_mentions INT DEFAULT 0,
+        dietary_mentions INT DEFAULT 0,
+        portion_mentions INT DEFAULT 0,
+        hidden_carb_mentions INT DEFAULT 0,
+        high_carb_mentions INT DEFAULT 0,
 
         keto_confidence NUMERIC,
         reasons TEXT
       )
     `);
+
+    // Migration: drop legacy columns if they still exist on older deployments
+    const legacyColumns = [
+      'lettuce_wrap_mentions',
+      'bunless_mentions',
+      'cauliflower_rice_mentions',
+      'substitution_mentions',
+      'breaded_risk_mentions',
+      'sweet_sauce_risk_mentions'
+    ];
+    for (const col of legacyColumns) {
+      await pool.query(`ALTER TABLE restaurant_signals DROP COLUMN IF EXISTS ${col}`);
+    }
 
     console.log('Database initialized successfully');
   } catch (error) {
@@ -159,16 +171,18 @@ async function getRestaurantSignals(restaurantId) {
 }
 
 // Upsert (insert or update) signals for a restaurant
+// Upsert (insert or update) signals for a restaurant
 async function upsertRestaurantSignals(restaurantId, signals) {
   const {
     ketoMentions = 0,
-    lettuceWrapMentions = 0,
-    bunlessMentions = 0,
-    cauliflowerRiceMentions = 0,
     accommodatingMentions = 0,
-    substitutionMentions = 0,
-    breadedRiskMentions = 0,
-    sweetSauceRiskMentions = 0,
+    customizationMentions = 0,
+    ketoFoodMentions = 0,
+    healthyCookingMentions = 0,
+    dietaryMentions = 0,
+    portionMentions = 0,
+    hiddenCarbMentions = 0,
+    highCarbMentions = 0,
     ketoConfidence = null,
     reasons = null
   } = signals || {};
@@ -178,41 +192,44 @@ async function upsertRestaurantSignals(restaurantId, signals) {
       restaurant_id,
       analyzed_at,
       keto_mentions,
-      lettuce_wrap_mentions,
-      bunless_mentions,
-      cauliflower_rice_mentions,
       accommodating_mentions,
-      substitution_mentions,
-      breaded_risk_mentions,
-      sweet_sauce_risk_mentions,
+      customization_mentions,
+      keto_food_mentions,
+      healthy_cooking_mentions,
+      dietary_mentions,
+      portion_mentions,
+      hidden_carb_mentions,
+      high_carb_mentions,
       keto_confidence,
       reasons
     ) VALUES (
-      $1, NOW(), $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
+      $1, NOW(), $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
     )
     ON CONFLICT (restaurant_id) DO UPDATE SET
       analyzed_at = NOW(),
       keto_mentions = EXCLUDED.keto_mentions,
-      lettuce_wrap_mentions = EXCLUDED.lettuce_wrap_mentions,
-      bunless_mentions = EXCLUDED.bunless_mentions,
-      cauliflower_rice_mentions = EXCLUDED.cauliflower_rice_mentions,
       accommodating_mentions = EXCLUDED.accommodating_mentions,
-      substitution_mentions = EXCLUDED.substitution_mentions,
-      breaded_risk_mentions = EXCLUDED.breaded_risk_mentions,
-      sweet_sauce_risk_mentions = EXCLUDED.sweet_sauce_risk_mentions,
+      customization_mentions = EXCLUDED.customization_mentions,
+      keto_food_mentions = EXCLUDED.keto_food_mentions,
+      healthy_cooking_mentions = EXCLUDED.healthy_cooking_mentions,
+      dietary_mentions = EXCLUDED.dietary_mentions,
+      portion_mentions = EXCLUDED.portion_mentions,
+      hidden_carb_mentions = EXCLUDED.hidden_carb_mentions,
+      high_carb_mentions = EXCLUDED.high_carb_mentions,
       keto_confidence = EXCLUDED.keto_confidence,
       reasons = EXCLUDED.reasons
     RETURNING *`,
     [
       restaurantId,
       ketoMentions,
-      lettuceWrapMentions,
-      bunlessMentions,
-      cauliflowerRiceMentions,
       accommodatingMentions,
-      substitutionMentions,
-      breadedRiskMentions,
-      sweetSauceRiskMentions,
+      customizationMentions,
+      ketoFoodMentions,
+      healthyCookingMentions,
+      dietaryMentions,
+      portionMentions,
+      hiddenCarbMentions,
+      highCarbMentions,
       ketoConfidence,
       reasons
     ]
@@ -233,4 +250,3 @@ module.exports = {
   getRestaurantSignals,
   upsertRestaurantSignals
 };
-

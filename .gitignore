@@ -1,2 +1,9 @@
-node_modules 
-.env 
+# secrets — never commit real keys
+.env
+
+# dependencies — Railway runs `npm install` on deploy
+node_modules/
+
+# OS junk
+.DS_Store
+Thumbs.db
