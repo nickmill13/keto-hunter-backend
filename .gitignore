@@ -1,5 +1,8 @@
 # secrets — never commit real keys
 .env
+.env.*
+*.env
+*.env.*
 
 # dependencies — Railway runs `npm install` on deploy
 node_modules/
