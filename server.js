@@ -3,7 +3,13 @@ const cors = require('cors');
 const axios = require('axios');
 const OpenAI = require('openai');
 const { createClerkClient } = require('@clerk/backend');
-require('dotenv').config();
+const path = require('path');
+const dotenvResult = require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+if (dotenvResult.error) {
+  console.log('⚠️  .env not loaded:', dotenvResult.error.message);
+} else {
+  console.log('✅ .env loaded from:', path.resolve(__dirname, '.env'));
+}
 
 // Load manual chain menu data (accurate nutrition from official sources)
 const chainMenuData = require('./chain-menus.json');
@@ -163,6 +169,8 @@ app.post('/api/geocode', async (req, res) => {
       }
     );
 
+    console.log('Geocode request:', address, '| Google status:', response.data.status, '| results:', response.data.results?.length || 0);
+
     if (response.data.results && response.data.results.length > 0) {
       const location = response.data.results[0].geometry.location;
       const formattedAddress = response.data.results[0].formatted_address;
@@ -174,6 +182,7 @@ app.post('/api/geocode', async (req, res) => {
         formattedAddress: formattedAddress
       });
     } else {
+      console.log('Geocode failed — Google error_message:', response.data.error_message || 'none');
       res.status(404).json({ 
         error: 'Location not found. Try a more specific address.',
         success: false 
