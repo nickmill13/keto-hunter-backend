@@ -234,21 +234,40 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
       return res.json({ restaurants, searchType: 'text' });
     }
     
-    // Search for specific keto-friendly restaurant types
-    // Increased maxResultCount and removed overly broad 'restaurant' type
+    // Split into MORE search groups to get better geographic coverage
+    // Each group maxes at 20, so more groups = more diverse results
     const searchGroups = [
       {
-        name: 'Meat & Protein',
-        types: ['steak_house', 'seafood_restaurant', 'barbecue_restaurant', 'brazilian_restaurant']
+        name: 'Steakhouses & BBQ',
+        types: ['steak_house', 'barbecue_restaurant']
       },
       {
-        name: 'International',
-        types: ['mediterranean_restaurant', 'greek_restaurant', 'mexican_restaurant', 'american_restaurant', 
-                'italian_restaurant', 'japanese_restaurant', 'chinese_restaurant', 'thai_restaurant', 'indian_restaurant']
+        name: 'Seafood & Brazilian',
+        types: ['seafood_restaurant', 'brazilian_restaurant']
       },
       {
-        name: 'Casual & Fast',
-        types: ['hamburger_restaurant', 'sandwich_shop', 'fast_food_restaurant', 'bar', 'restaurant']
+        name: 'Mediterranean & Greek',
+        types: ['mediterranean_restaurant', 'greek_restaurant', 'middle_eastern_restaurant']
+      },
+      {
+        name: 'Mexican & Latin',
+        types: ['mexican_restaurant', 'latin_american_restaurant']
+      },
+      {
+        name: 'Asian - Japanese & Chinese',
+        types: ['japanese_restaurant', 'chinese_restaurant', 'sushi_restaurant']
+      },
+      {
+        name: 'Asian - Thai, Indian, Vietnamese',
+        types: ['thai_restaurant', 'indian_restaurant', 'vietnamese_restaurant', 'korean_restaurant']
+      },
+      {
+        name: 'Italian & American',
+        types: ['italian_restaurant', 'american_restaurant']
+      },
+      {
+        name: 'Casual Dining',
+        types: ['hamburger_restaurant', 'sandwich_shop', 'fast_food_restaurant', 'bar']
       }
     ];
     
@@ -264,8 +283,9 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
           'https://places.googleapis.com/v1/places:searchNearby',
           {
             includedTypes: group.types,
-            maxResultCount: 20,  // Per search group (3 groups = up to 60 total)
-            rankPreference: 'DISTANCE',
+            maxResultCount: 20,  // Per search group (8 groups = up to 160 total)
+            // Removed rankPreference: 'DISTANCE' to get better geographic spread
+            // Google will now distribute results across the full radius instead of just closest 20
             locationRestriction: {
               circle: {
                 center: {
