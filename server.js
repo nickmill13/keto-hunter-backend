@@ -238,41 +238,21 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
     // This works around Google's tendency to only return nearby popular restaurants
     const searchCenters = [];
     
-    if (radius <= 8047) {
-      // 5 miles or less - just search from user location
-      searchCenters.push({ lat: latitude, lng: longitude, name: 'center' });
-    } else if (radius <= 16093) {
-      // 5-10 miles - add 4 points in cardinal directions
-      const offset = radius * 0.4; // 40% of radius out
-      const latOffset = offset / 111320; // degrees
-      const lngOffset = offset / (111320 * Math.cos(latitude * Math.PI / 180));
-      
-      searchCenters.push(
-        { lat: latitude, lng: longitude, name: 'center' },
-        { lat: latitude + latOffset, lng: longitude, name: 'north' },
-        { lat: latitude - latOffset, lng: longitude, name: 'south' },
-        { lat: latitude, lng: longitude + lngOffset, name: 'east' },
-        { lat: latitude, lng: longitude - lngOffset, name: 'west' }
-      );
+    if (radius <= 16093) {
+      // 10 miles or less - just search from user location with high count
+      searchCenters.push({ lat: latitude, lng: longitude, name: 'center', maxResults: 20 });
     } else {
-      // 10+ miles - add 8 points (cardinal + diagonal)
+      // 10+ miles - search from center + 4 cardinal directions
       const offset = radius * 0.5; // 50% of radius out
       const latOffset = offset / 111320;
       const lngOffset = offset / (111320 * Math.cos(latitude * Math.PI / 180));
-      const diagOffset = offset * 0.7071; // 45-degree offset
-      const diagLatOffset = diagOffset / 111320;
-      const diagLngOffset = diagOffset / (111320 * Math.cos(latitude * Math.PI / 180));
       
       searchCenters.push(
-        { lat: latitude, lng: longitude, name: 'center' },
-        { lat: latitude + latOffset, lng: longitude, name: 'north' },
-        { lat: latitude - latOffset, lng: longitude, name: 'south' },
-        { lat: latitude, lng: longitude + lngOffset, name: 'east' },
-        { lat: latitude, lng: longitude - lngOffset, name: 'west' },
-        { lat: latitude + diagLatOffset, lng: longitude + diagLngOffset, name: 'northeast' },
-        { lat: latitude + diagLatOffset, lng: longitude - diagLngOffset, name: 'northwest' },
-        { lat: latitude - diagLatOffset, lng: longitude + diagLngOffset, name: 'southeast' },
-        { lat: latitude - diagLatOffset, lng: longitude - diagLngOffset, name: 'southwest' }
+        { lat: latitude, lng: longitude, name: 'center', maxResults: 20 },
+        { lat: latitude + latOffset, lng: longitude, name: 'north', maxResults: 15 },
+        { lat: latitude - latOffset, lng: longitude, name: 'south', maxResults: 15 },
+        { lat: latitude, lng: longitude + lngOffset, name: 'east', maxResults: 15 },
+        { lat: latitude, lng: longitude - lngOffset, name: 'west', maxResults: 15 }
       );
     }
     
@@ -338,7 +318,7 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
                 'https://places.googleapis.com/v1/places:searchNearby',
                 {
                   includedTypes: group.types,
-                  maxResultCount: 10,  // Fewer per search since we're doing more searches
+                  maxResultCount: center.maxResults,  // Use center-specific max (20 for center, 15 for outer points)
                   // Removed rankPreference: 'DISTANCE' to get better geographic spread
                   locationRestriction: {
                     circle: {
