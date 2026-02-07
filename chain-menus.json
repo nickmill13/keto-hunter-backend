@@ -2318,5 +2318,93 @@
       }
     ],
     "ketoNaturalness": 0.55
+  },
+  "tgifridays": {
+    "chainName": "TGI Friday's",
+    "source": "Verified from TGI Friday's official nutrition guide via KetoConnect, Hip2Keto Feb 2025",
+    "lastUpdated": "2025-02",
+    "orderTips": [
+      "Order any burger or sandwich 'no bun' - they serve it on a plate",
+      "ALWAYS sub fries for steamed broccoli or side salad",
+      "Ask for sauces on the side - many contain hidden sugars",
+      "Grilled proteins are safest - avoid anything 'crispy' or 'glazed'",
+      "The Endless Apps menu can work - just skip the breaded items",
+      "Caesar dressing is lower carb (2g) than most other dressings"
+    ],
+    "combos": [
+      {
+        "name": "Cheeseburger (No Bun)",
+        "calories": 520,
+        "carbs": 6,
+        "fat": 39,
+        "protein": 36,
+        "orderAs": "Cheeseburger → No Bun, sub veggies for fries"
+      },
+      {
+        "name": "Bacon Cheeseburger (No Bun)",
+        "calories": 600,
+        "carbs": 7,
+        "fat": 46,
+        "protein": 40,
+        "orderAs": "Bacon Cheeseburger → No Bun, sub veggies for fries"
+      },
+      {
+        "name": "Grilled Salmon",
+        "calories": 450,
+        "carbs": 5,
+        "fat": 26,
+        "protein": 48,
+        "orderAs": "Grilled Salmon → sub veggies for rice"
+      },
+      {
+        "name": "6oz Sirloin Steak",
+        "calories": 320,
+        "carbs": 2,
+        "fat": 18,
+        "protein": 38,
+        "orderAs": "6oz Sirloin → sub veggies for potato"
+      },
+      {
+        "name": "12oz New York Strip",
+        "calories": 580,
+        "carbs": 0,
+        "fat": 38,
+        "protein": 58,
+        "orderAs": "12oz NY Strip → sub veggies for potato"
+      },
+      {
+        "name": "Grilled Chicken Breast",
+        "calories": 260,
+        "carbs": 2,
+        "fat": 10,
+        "protein": 42,
+        "orderAs": "Grilled Chicken → Plain, sub veggies for fries"
+      },
+      {
+        "name": "Caesar Salad w/ Grilled Chicken (No Croutons)",
+        "calories": 510,
+        "carbs": 9,
+        "fat": 36,
+        "protein": 40,
+        "orderAs": "Caesar Salad → Add Grilled Chicken, No Croutons"
+      },
+      {
+        "name": "House Salad (Side)",
+        "calories": 100,
+        "carbs": 8,
+        "fat": 5,
+        "protein": 3,
+        "orderAs": "Side House Salad → Ranch dressing"
+      },
+      {
+        "name": "Steamed Broccoli (Side)",
+        "calories": 50,
+        "carbs": 7,
+        "fat": 1,
+        "protein": 3,
+        "orderAs": "Side of Steamed Broccoli"
+      }
+    ],
+    "ketoNaturalness": 0.65
   }
 }
