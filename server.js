@@ -233,17 +233,21 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
       return res.json({ restaurants, searchType: 'text' });
     }
     
-    // Search for ALL restaurant types (broader search)
-    // We'll filter and score on the backend based on keto-friendliness
+    // Search for specific keto-friendly restaurant types
+    // Increased maxResultCount and removed overly broad 'restaurant' type
     const searchGroups = [
       {
-        name: 'All Restaurants',
-        types: ['restaurant']  // Catch everything, then filter by keto score
+        name: 'Meat & Protein',
+        types: ['steak_house', 'seafood_restaurant', 'barbecue_restaurant', 'brazilian_restaurant']
       },
       {
-        name: 'Specific Keto-Friendly',
-        types: ['steak_house', 'seafood_restaurant', 'barbecue_restaurant', 'brazilian_restaurant', 
-                'mediterranean_restaurant', 'greek_restaurant', 'mexican_restaurant']
+        name: 'International',
+        types: ['mediterranean_restaurant', 'greek_restaurant', 'mexican_restaurant', 'american_restaurant', 
+                'italian_restaurant', 'japanese_restaurant', 'chinese_restaurant', 'thai_restaurant', 'indian_restaurant']
+      },
+      {
+        name: 'Casual & Fast',
+        types: ['hamburger_restaurant', 'sandwich_shop', 'fast_food_restaurant', 'bar', 'restaurant']
       }
     ];
     
@@ -253,12 +257,13 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
     // Execute all searches in parallel
     const searchPromises = searchGroups.map(async (group) => {
       try {
+        console.log(`[SEARCH] Starting search for: ${group.name} (types: ${group.types.join(', ')})`);
         
         const response = await axios.post(
           'https://places.googleapis.com/v1/places:searchNearby',
           {
             includedTypes: group.types,
-            maxResultCount: 20,
+            maxResultCount: 20,  // Per search group (3 groups = up to 60 total)
             rankPreference: 'DISTANCE',
             locationRestriction: {
               circle: {
@@ -280,6 +285,7 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
         );
         
         const places = response.data.places || [];
+        console.log(`[SEARCH] ${group.name} returned ${places.length} places`);
         
         // Add to map (automatically deduplicates by ID)
         places.forEach(place => {
@@ -289,7 +295,7 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
         });
         
       } catch (error) {
-        console.error(`    [ERROR] ${group.name} search failed:`, error.message);
+        console.error(`[ERROR] ${group.name} search failed:`, error.message);
       }
     });
     
@@ -344,9 +350,17 @@ function processRestaurants(places, userLat, userLon) {
   });
 
   // Sort: known chains first, then by keto score, then by distance
-  return restaurants
-    .filter(r => r.ketoScore >= 0.2)  // Keep minimum keto score
-    .sort((a, b) => {
+  const filtered = restaurants.filter(r => r.ketoScore >= 0.2);  // Keep minimum keto score
+  
+  // Log cuisine breakdown for debugging
+  const cuisineCounts = {};
+  filtered.forEach(r => {
+    cuisineCounts[r.cuisine] = (cuisineCounts[r.cuisine] || 0) + 1;
+  });
+  console.log(`[DEBUG] After filtering (${filtered.length} restaurants):`);
+  console.log(`[DEBUG] Cuisine breakdown:`, cuisineCounts);
+  
+  return filtered.sort((a, b) => {
       // Prioritize known chains
       if (a.isChain && !b.isChain) return -1;
       if (!a.isChain && b.isChain) return 1;
