@@ -234,6 +234,50 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
       return res.json({ restaurants, searchType: 'text' });
     }
     
+    // To get better geographic distribution, we'll search from multiple center points
+    // This works around Google's tendency to only return nearby popular restaurants
+    const searchCenters = [];
+    
+    if (radius <= 8047) {
+      // 5 miles or less - just search from user location
+      searchCenters.push({ lat: latitude, lng: longitude, name: 'center' });
+    } else if (radius <= 16093) {
+      // 5-10 miles - add 4 points in cardinal directions
+      const offset = radius * 0.4; // 40% of radius out
+      const latOffset = offset / 111320; // degrees
+      const lngOffset = offset / (111320 * Math.cos(latitude * Math.PI / 180));
+      
+      searchCenters.push(
+        { lat: latitude, lng: longitude, name: 'center' },
+        { lat: latitude + latOffset, lng: longitude, name: 'north' },
+        { lat: latitude - latOffset, lng: longitude, name: 'south' },
+        { lat: latitude, lng: longitude + lngOffset, name: 'east' },
+        { lat: latitude, lng: longitude - lngOffset, name: 'west' }
+      );
+    } else {
+      // 10+ miles - add 8 points (cardinal + diagonal)
+      const offset = radius * 0.5; // 50% of radius out
+      const latOffset = offset / 111320;
+      const lngOffset = offset / (111320 * Math.cos(latitude * Math.PI / 180));
+      const diagOffset = offset * 0.7071; // 45-degree offset
+      const diagLatOffset = diagOffset / 111320;
+      const diagLngOffset = diagOffset / (111320 * Math.cos(latitude * Math.PI / 180));
+      
+      searchCenters.push(
+        { lat: latitude, lng: longitude, name: 'center' },
+        { lat: latitude + latOffset, lng: longitude, name: 'north' },
+        { lat: latitude - latOffset, lng: longitude, name: 'south' },
+        { lat: latitude, lng: longitude + lngOffset, name: 'east' },
+        { lat: latitude, lng: longitude - lngOffset, name: 'west' },
+        { lat: latitude + diagLatOffset, lng: longitude + diagLngOffset, name: 'northeast' },
+        { lat: latitude + diagLatOffset, lng: longitude - diagLngOffset, name: 'northwest' },
+        { lat: latitude - diagLatOffset, lng: longitude + diagLngOffset, name: 'southeast' },
+        { lat: latitude - diagLatOffset, lng: longitude - diagLngOffset, name: 'southwest' }
+      );
+    }
+    
+    console.log(`[MULTI-POINT] Using ${searchCenters.length} search centers for ${(radius / 1609.34).toFixed(1)} mile radius`);
+    
     // Split into MORE search groups to get better geographic coverage
     // Each group maxes at 20, so more groups = more diverse results
     const searchGroups = [
@@ -251,7 +295,7 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
       },
       {
         name: 'Mexican & Latin',
-        types: ['mexican_restaurant', 'latin_american_restaurant']
+        types: ['mexican_restaurant', 'spanish_restaurant']
       },
       {
         name: 'Asian - Japanese & Chinese',
@@ -274,51 +318,64 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
     
     const allPlaces = new Map(); // Use Map to deduplicate by ID
     
-    // Execute all searches in parallel
-    const searchPromises = searchGroups.map(async (group) => {
-      try {
-        console.log(`[SEARCH] Starting search for: ${group.name} (types: ${group.types.join(', ')})`);
-        
-        const response = await axios.post(
-          'https://places.googleapis.com/v1/places:searchNearby',
-          {
-            includedTypes: group.types,
-            maxResultCount: 20,  // Per search group (8 groups = up to 160 total)
-            // Removed rankPreference: 'DISTANCE' to get better geographic spread
-            // Google will now distribute results across the full radius instead of just closest 20
-            locationRestriction: {
-              circle: {
-                center: {
-                  latitude: latitude,
-                  longitude: longitude
-                },
-                radius: radius
+    // Execute searches from all center points and all group types
+    const searchPromises = [];
+    
+    for (const center of searchCenters) {
+      for (const group of searchGroups) {
+        searchPromises.push(
+          (async () => {
+            try {
+              const searchRadius = radius / searchCenters.length; // Smaller radius per search point
+              
+              if (searchCenters.length === 1) {
+                console.log(`[SEARCH] ${group.name} (types: ${group.types.join(', ')})`);
+              } else {
+                console.log(`[SEARCH] ${group.name} from ${center.name} point`);
               }
+              
+              const response = await axios.post(
+                'https://places.googleapis.com/v1/places:searchNearby',
+                {
+                  includedTypes: group.types,
+                  maxResultCount: 10,  // Fewer per search since we're doing more searches
+                  // Removed rankPreference: 'DISTANCE' to get better geographic spread
+                  locationRestriction: {
+                    circle: {
+                      center: {
+                        latitude: center.lat,
+                        longitude: center.lng
+                      },
+                      radius: searchRadius
+                    }
+                  }
+                },
+                {
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'X-Goog-Api-Key': process.env.GOOGLE_PLACES_API_KEY,
+                    'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.location,places.rating,places.priceLevel,places.types,places.id'
+                  }
+                }
+              );
+              
+              const places = response.data.places || [];
+              console.log(`[SEARCH] ${group.name} from ${center.name} returned ${places.length} places`);
+              
+              // Add to map (automatically deduplicates by ID)
+              places.forEach(place => {
+                if (place.id && !allPlaces.has(place.id)) {
+                  allPlaces.set(place.id, place);
+                }
+              });
+              
+            } catch (error) {
+              console.error(`[ERROR] ${group.name} from ${center.name} search failed:`, error.message);
             }
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Goog-Api-Key': process.env.GOOGLE_PLACES_API_KEY,
-              'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.location,places.rating,places.priceLevel,places.types,places.id'
-            }
-          }
+          })()
         );
-        
-        const places = response.data.places || [];
-        console.log(`[SEARCH] ${group.name} returned ${places.length} places`);
-        
-        // Add to map (automatically deduplicates by ID)
-        places.forEach(place => {
-          if (place.id && !allPlaces.has(place.id)) {
-            allPlaces.set(place.id, place);
-          }
-        });
-        
-      } catch (error) {
-        console.error(`[ERROR] ${group.name} search failed:`, error.message);
       }
-    });
+    }
     
     // Wait for all searches to complete
     await Promise.all(searchPromises);
@@ -326,6 +383,14 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
     
     const uniquePlaces = Array.from(allPlaces.values());
     const restaurants = processRestaurants(uniquePlaces, latitude, longitude);
+    
+    // Log distance range to diagnose the radius issue
+    if (restaurants.length > 0) {
+      const distances = restaurants.map(r => parseFloat(r.distance)).sort((a, b) => a - b);
+      const minDist = distances[0].toFixed(1);
+      const maxDist = distances[distances.length - 1].toFixed(1);
+      console.log(`[DISTANCE RANGE] ${minDist} - ${maxDist} miles (searched ${(radius / 1609.34).toFixed(1)} mile radius)`);
+    }
     
     console.log(`[SEARCH COMPLETE] Returning ${restaurants.length} restaurants to frontend`);
     
