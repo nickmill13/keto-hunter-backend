@@ -313,13 +313,13 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
 function processRestaurants(places, userLat, userLon) {
   console.log(`[DEBUG] Processing ${places.length} places from Google`);
   
-  const restaurants = places.map(place => {
+  const restaurants = places.map((place, index) => {
     const name = place.displayName?.text || 'Unknown';
     const types = place.types || [];
     const cuisine = getCuisineType(types, name);
     
     // Debug log for first few restaurants
-    if (restaurants.length < 5) {
+    if (index < 5) {
       console.log(`[DEBUG] Restaurant: ${name}`);
       console.log(`[DEBUG]   Types: ${types.join(', ')}`);
       console.log(`[DEBUG]   Detected cuisine: ${cuisine}`);
