@@ -199,6 +199,7 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
   try {
     const { latitude, longitude, radius = 8000, searchQuery } = req.body;
     
+    console.log(`[SEARCH REQUEST] Lat: ${latitude}, Lng: ${longitude}, Radius: ${radius}m (${(radius / 1609.34).toFixed(1)} miles)`);
     
     // If user provided a specific search term, do a text search
     if (searchQuery && searchQuery.trim()) {
@@ -306,6 +307,7 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
     const uniquePlaces = Array.from(allPlaces.values());
     const restaurants = processRestaurants(uniquePlaces, latitude, longitude);
     
+    console.log(`[SEARCH COMPLETE] Returning ${restaurants.length} restaurants to frontend`);
     
     res.json({ restaurants, searchType: 'nearby-multi' });
     
