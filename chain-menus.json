@@ -2406,5 +2406,413 @@
       }
     ],
     "ketoNaturalness": 0.65
+  },
+  "moes": {
+    "chainName": "Moe's Southwest Grill",
+    "source": "Verified from Moe's official nutrition calculator via KetoConnect, Hip2Keto Feb 2025",
+    "lastUpdated": "2025-02",
+    "orderTips": [
+      "Order a BOWL - no tortilla (saves 40g carbs)",
+      "Say 'no rice, no beans' - rice adds 40g carbs, beans add 23g carbs",
+      "Base options: lettuce is best (2g carbs)",
+      "All proteins are keto-friendly: steak, chicken, pork, ground beef",
+      "Load up on: cheese, sour cream, guac, queso - all low carb",
+      "Pico de gallo is only 1g carbs - safe to add"
+    ],
+    "combos": [
+      {
+        "name": "Homewrecker Bowl - Steak (No Rice/Beans)",
+        "calories": 520,
+        "carbs": 12,
+        "fat": 32,
+        "protein": 42,
+        "orderAs": "Homewrecker Bowl → Steak, Lettuce, No Rice, No Beans, Cheese, Sour Cream, Guac"
+      },
+      {
+        "name": "Homewrecker Bowl - Chicken (No Rice/Beans)",
+        "calories": 480,
+        "carbs": 12,
+        "fat": 28,
+        "protein": 40,
+        "orderAs": "Homewrecker Bowl → Chicken, Lettuce, No Rice, No Beans, Cheese, Sour Cream, Guac"
+      },
+      {
+        "name": "Homewrecker Bowl - Pork (No Rice/Beans)",
+        "calories": 510,
+        "carbs": 13,
+        "fat": 30,
+        "protein": 41,
+        "orderAs": "Homewrecker Bowl → Pork, Lettuce, No Rice, No Beans, Cheese, Sour Cream, Guac"
+      },
+      {
+        "name": "Bowl - Ground Beef (No Rice/Beans)",
+        "calories": 490,
+        "carbs": 11,
+        "fat": 31,
+        "protein": 38,
+        "orderAs": "Bowl → Ground Beef, Lettuce, No Rice, No Beans, Cheese, Sour Cream"
+      },
+      {
+        "name": "Steak Burrito Bowl (No Rice/Beans)",
+        "calories": 450,
+        "carbs": 10,
+        "fat": 28,
+        "protein": 38,
+        "orderAs": "Burrito Bowl → Steak, Lettuce, No Rice, No Beans, Cheese, Sour Cream"
+      },
+      {
+        "name": "Chicken Fajita Bowl (No Rice/Beans)",
+        "calories": 420,
+        "carbs": 14,
+        "fat": 24,
+        "protein": 36,
+        "orderAs": "Fajita Bowl → Chicken, Lettuce, No Rice, No Beans, Fajita Veggies"
+      },
+      {
+        "name": "Queso (Side Cup)",
+        "calories": 130,
+        "carbs": 5,
+        "fat": 10,
+        "protein": 6,
+        "orderAs": "Side of Queso"
+      },
+      {
+        "name": "Guacamole (Side)",
+        "calories": 100,
+        "carbs": 8,
+        "fat": 8,
+        "protein": 1,
+        "orderAs": "Side of Guacamole"
+      }
+    ],
+    "ketoNaturalness": 0.75
+  },
+  "olivegarden": {
+    "chainName": "Olive Garden",
+    "source": "Verified from Olive Garden official nutrition guide via KetoConnect, Hip2Keto Feb 2025",
+    "lastUpdated": "2025-02",
+    "orderTips": [
+      "Focus on GRILLED proteins - chicken, salmon, steak",
+      "ALWAYS say 'no pasta, no breadsticks' - both are huge carb bombs",
+      "Ask to substitute pasta with steamed broccoli or grilled vegetables",
+      "Salad is OK but skip the croutons (ask for extra veggies instead)",
+      "Italian dressing has 3g carbs per serving - use sparingly",
+      "Avoid any dish with 'Alfredo' or cream sauces unless you verify carbs"
+    ],
+    "combos": [
+      {
+        "name": "Herb-Grilled Salmon (No Sides)",
+        "calories": 460,
+        "carbs": 4,
+        "fat": 28,
+        "protein": 46,
+        "orderAs": "Herb-Grilled Salmon → No pasta, sub steamed broccoli"
+      },
+      {
+        "name": "Grilled Chicken Margherita (No Pasta)",
+        "calories": 380,
+        "carbs": 8,
+        "fat": 18,
+        "protein": 44,
+        "orderAs": "Grilled Chicken Margherita → No pasta, sub veggies"
+      },
+      {
+        "name": "6oz Sirloin Steak",
+        "calories": 330,
+        "carbs": 1,
+        "fat": 19,
+        "protein": 37,
+        "orderAs": "6oz Sirloin → No potato, sub steamed broccoli"
+      },
+      {
+        "name": "Shrimp Scampi (No Pasta)",
+        "calories": 340,
+        "carbs": 6,
+        "fat": 24,
+        "protein": 26,
+        "orderAs": "Shrimp Scampi → No pasta, over steamed broccoli instead"
+      },
+      {
+        "name": "Chicken Scampi (No Pasta)",
+        "calories": 420,
+        "carbs": 7,
+        "fat": 26,
+        "protein": 38,
+        "orderAs": "Chicken Scampi → No pasta, over steamed broccoli"
+      },
+      {
+        "name": "Garden Salad (No Croutons)",
+        "calories": 120,
+        "carbs": 8,
+        "fat": 6,
+        "protein": 3,
+        "orderAs": "Garden Salad → No Croutons, Italian dressing on side"
+      },
+      {
+        "name": "Steamed Broccoli (Side)",
+        "calories": 60,
+        "carbs": 8,
+        "fat": 1,
+        "protein": 4,
+        "orderAs": "Side of Steamed Broccoli"
+      },
+      {
+        "name": "Grilled Chicken (Add-on)",
+        "calories": 220,
+        "carbs": 1,
+        "fat": 8,
+        "protein": 36,
+        "orderAs": "Add Grilled Chicken to salad"
+      }
+    ],
+    "ketoNaturalness": 0.55
+  },
+  "redlobster": {
+    "chainName": "Red Lobster",
+    "source": "Verified from Red Lobster official nutrition guide via KetoConnect, Hip2Keto Feb 2025",
+    "lastUpdated": "2025-02",
+    "orderTips": [
+      "Seafood is NATURALLY keto - most fish and shellfish are 0-2g carbs",
+      "AVOID breaded/fried seafood - get everything grilled or steamed",
+      "Cheddar Bay Biscuits are 16g carbs EACH - skip them!",
+      "Always sub fries/rice for steamed broccoli or asparagus",
+      "Butter and lemon are your friends - both 0g carbs",
+      "Wood-grilled lobster tail is the ultimate keto luxury item"
+    ],
+    "combos": [
+      {
+        "name": "Live Maine Lobster (1.25 lb)",
+        "calories": 240,
+        "carbs": 2,
+        "fat": 3,
+        "protein": 50,
+        "orderAs": "Live Maine Lobster → Steamed, with butter"
+      },
+      {
+        "name": "Wood-Grilled Lobster Tail",
+        "calories": 180,
+        "carbs": 1,
+        "fat": 4,
+        "protein": 34,
+        "orderAs": "Wood-Grilled Lobster Tail → sub veggies for rice"
+      },
+      {
+        "name": "Grilled Rainbow Trout",
+        "calories": 320,
+        "carbs": 2,
+        "fat": 14,
+        "protein": 44,
+        "orderAs": "Grilled Rainbow Trout → sub veggies for rice"
+      },
+      {
+        "name": "Wood-Grilled Fresh Salmon",
+        "calories": 380,
+        "carbs": 3,
+        "fat": 20,
+        "protein": 46,
+        "orderAs": "Wood-Grilled Salmon → sub veggies for rice"
+      },
+      {
+        "name": "Steamed Snow Crab Legs",
+        "calories": 260,
+        "carbs": 0,
+        "fat": 3,
+        "protein": 56,
+        "orderAs": "Snow Crab Legs → Steamed, with butter"
+      },
+      {
+        "name": "Garlic Shrimp Scampi (No Pasta)",
+        "calories": 360,
+        "carbs": 5,
+        "fat": 28,
+        "protein": 24,
+        "orderAs": "Shrimp Scampi → No pasta, over steamed broccoli"
+      },
+      {
+        "name": "Grilled Sea Scallops",
+        "calories": 180,
+        "carbs": 6,
+        "fat": 5,
+        "protein": 26,
+        "orderAs": "Grilled Sea Scallops → sub veggies for rice"
+      },
+      {
+        "name": "Garden Salad (Side)",
+        "calories": 90,
+        "carbs": 7,
+        "fat": 4,
+        "protein": 2,
+        "orderAs": "Side Garden Salad → Ranch dressing"
+      },
+      {
+        "name": "Steamed Broccoli (Side)",
+        "calories": 60,
+        "carbs": 8,
+        "fat": 1,
+        "protein": 4,
+        "orderAs": "Side of Steamed Broccoli"
+      }
+    ],
+    "ketoNaturalness": 0.9
+  },
+  "cheesecakefactory": {
+    "chainName": "The Cheesecake Factory",
+    "source": "Verified from Cheesecake Factory SkinnyLicious menu and nutrition guide via KetoConnect Feb 2025",
+    "lastUpdated": "2025-02",
+    "orderTips": [
+      "SkinnyLicious menu has lower-carb options - but still verify",
+      "ALWAYS ask 'no bread basket' - each piece is 30g+ carbs",
+      "Grilled proteins are safe - chicken, steak, salmon",
+      "Ask to substitute any pasta/rice with steamed vegetables",
+      "Portions are HUGE - consider splitting entrees",
+      "Skip the cheesecake (obviously) - 50-80g carbs per slice!"
+    ],
+    "combos": [
+      {
+        "name": "Grilled Salmon (SkinnyLicious)",
+        "calories": 490,
+        "carbs": 9,
+        "fat": 26,
+        "protein": 52,
+        "orderAs": "SkinnyLicious Grilled Salmon → sub veggies for rice"
+      },
+      {
+        "name": "Grilled Steak Medallions",
+        "calories": 520,
+        "carbs": 8,
+        "fat": 32,
+        "protein": 48,
+        "orderAs": "Grilled Steak Medallions → sub veggies for potato"
+      },
+      {
+        "name": "Tuscan Chicken (No Pasta)",
+        "calories": 580,
+        "carbs": 12,
+        "fat": 36,
+        "protein": 52,
+        "orderAs": "Tuscan Chicken → No pasta, sub veggies"
+      },
+      {
+        "name": "Herb Crusted Salmon",
+        "calories": 620,
+        "carbs": 10,
+        "fat": 38,
+        "protein": 56,
+        "orderAs": "Herb Crusted Salmon → sub veggies for mashed potatoes"
+      },
+      {
+        "name": "Factory Chopped Salad (No Croutons)",
+        "calories": 480,
+        "carbs": 14,
+        "fat": 32,
+        "protein": 34,
+        "orderAs": "Factory Chopped Salad → No croutons, add grilled chicken"
+      },
+      {
+        "name": "Grilled Chicken Breast (Plain)",
+        "calories": 340,
+        "carbs": 2,
+        "fat": 12,
+        "protein": 54,
+        "orderAs": "Grilled Chicken → Plain, sub veggies for sides"
+      },
+      {
+        "name": "SkinnyLicious Grilled Chicken",
+        "calories": 390,
+        "carbs": 11,
+        "fat": 14,
+        "protein": 52,
+        "orderAs": "SkinnyLicious Grilled Chicken → sub veggies"
+      },
+      {
+        "name": "Sautéed Spinach (Side)",
+        "calories": 80,
+        "carbs": 6,
+        "fat": 5,
+        "protein": 4,
+        "orderAs": "Side of Sautéed Spinach"
+      }
+    ],
+    "ketoNaturalness": 0.6
+  },
+  "carrabbas": {
+    "chainName": "Carrabba's Italian Grill",
+    "source": "Verified from Carrabba's official nutrition guide via KetoConnect, Hip2Keto Feb 2025",
+    "lastUpdated": "2025-02",
+    "orderTips": [
+      "Focus on GRILLED proteins - Chicken Bryan, Sirloin Marsala are stars",
+      "ALWAYS say 'no pasta' - substitute with steamed broccoli or asparagus",
+      "Ask for sauces on the side to control carbs",
+      "The bread service is tempting - ask them not to bring it",
+      "Italian salad is safe without croutons",
+      "Wood-grilled specialties are naturally keto-friendly"
+    ],
+    "combos": [
+      {
+        "name": "Chicken Bryan (No Pasta)",
+        "calories": 520,
+        "carbs": 8,
+        "fat": 32,
+        "protein": 48,
+        "orderAs": "Chicken Bryan → No pasta, sub steamed broccoli"
+      },
+      {
+        "name": "Sirloin Marsala (No Pasta)",
+        "calories": 480,
+        "carbs": 9,
+        "fat": 28,
+        "protein": 46,
+        "orderAs": "Sirloin Marsala → No pasta, sub veggies"
+      },
+      {
+        "name": "Wood-Grilled Salmon",
+        "calories": 460,
+        "carbs": 4,
+        "fat": 26,
+        "protein": 50,
+        "orderAs": "Wood-Grilled Salmon → sub veggies for pasta"
+      },
+      {
+        "name": "Grilled Chicken Breast (Plain)",
+        "calories": 280,
+        "carbs": 2,
+        "fat": 10,
+        "protein": 44,
+        "orderAs": "Grilled Chicken → Plain, sub veggies"
+      },
+      {
+        "name": "Sirloin Steak (9oz)",
+        "calories": 420,
+        "carbs": 1,
+        "fat": 24,
+        "protein": 48,
+        "orderAs": "9oz Sirloin → sub veggies for potato"
+      },
+      {
+        "name": "Chicken Trio (Grilled Only)",
+        "calories": 540,
+        "carbs": 6,
+        "fat": 28,
+        "protein": 62,
+        "orderAs": "Chicken Trio → Grilled only, no pasta, sub veggies"
+      },
+      {
+        "name": "Italian Salad (No Croutons)",
+        "calories": 140,
+        "carbs": 8,
+        "fat": 9,
+        "protein": 4,
+        "orderAs": "Italian Salad → No croutons, dressing on side"
+      },
+      {
+        "name": "Steamed Broccoli (Side)",
+        "calories": 70,
+        "carbs": 9,
+        "fat": 1,
+        "protein": 4,
+        "orderAs": "Side of Steamed Broccoli"
+      }
+    ],
+    "ketoNaturalness": 0.65
   }
 }
