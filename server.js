@@ -15,7 +15,7 @@ if (dotenvResult.error) {
 const chainMenuData = require('./chain-menus.json');
 console.log('[OK] Chain menu data loaded:', Object.keys(chainMenuData).join(', '));
 
-// Known chain registry — detectChain() matches against these keys,
+// Known chain registry â€” detectChain() matches against these keys,
 // and the API Ninjas fallback uses ketoQueries for nutrition lookups
 const CHAIN_REGISTRY = {
   'chipotle':             { name: 'Chipotle',                menuKey: 'chipotle',          ketoQueries: ['chipotle carnitas salad bowl no rice no beans','chipotle steak bowl lettuce cheese guacamole','chipotle chicken salad no rice'] },
@@ -28,28 +28,28 @@ const CHAIN_REGISTRY = {
   'burger king':          { name: 'Burger King',             menuKey: 'burgerking',        ketoQueries: ['whopper patty no bun','double whopper no bun','bacon king no bun','grilled chicken sandwich no bun'] },
   'taco bell':            { name: 'Taco Bell',               menuKey: 'tacobell',          ketoQueries: ['power bowl no rice no beans','taco bell steak','cheese quesadilla','black beans'] },
   'dunkin':               { name: "Dunkin'",                 menuKey: 'dunkin',            ketoQueries: ['dunkin egg and cheese','bacon egg and cheese wake up wrap','sausage egg and cheese','coffee black'] },
-  'starbucks':            { name: 'Starbucks',               ketoQueries: ['starbucks egg bites','bacon gruyere egg bites','chicken sausage egg bites','unsweetened iced coffee'] },
+  'starbucks':            { name: 'Starbucks',               menuKey: 'starbucks',         ketoQueries: ['starbucks egg bites','bacon gruyere egg bites','chicken sausage egg bites','unsweetened iced coffee'] },
   'olive garden':         { name: 'Olive Garden',            ketoQueries: ['olive garden grilled chicken','olive garden shrimp scampi no pasta','olive garden salmon'] },
   'red lobster':          { name: 'Red Lobster',             ketoQueries: ['red lobster live maine lobster','red lobster wood-grilled lobster tail','red lobster grilled salmon'] },
   'buffalo wild wings':   { name: 'Buffalo Wild Wings',      menuKey: 'buffalowildwings',  ketoQueries: ['buffalo wild wings traditional wings','buffalo wild wings naked tenders','buffalo wild wings caesar salad'] },
   'outback':              { name: 'Outback Steakhouse',      menuKey: 'outback',           ketoQueries: ['outback ribeye steak','outback victoria filet','outback grilled chicken'] },
   'texas roadhouse':      { name: 'Texas Roadhouse',         menuKey: 'texasroadhouse',    ketoQueries: ['texas roadhouse ribeye','texas roadhouse sirloin','texas roadhouse grilled chicken salad'] },
   'longhorn':             { name: 'LongHorn Steakhouse',     menuKey: 'longhorn',          ketoQueries: ['longhorn outlaw ribeye','longhorn flo filet','longhorn grilled salmon'] },
-  'applebee':             { name: "Applebee's",              ketoQueries: ['applebees bourbon street steak','applebees grilled chicken caesar salad','applebees shrimp'] },
-  'chili':                { name: "Chili's",                 ketoQueries: ['chilis ancho salmon','chilis grilled chicken salad','chilis chicken fajitas no tortilla'] },
+  'applebee':             { name: "Applebee's",              menuKey: 'applebees',         ketoQueries: ['applebees bourbon street steak','applebees grilled chicken caesar salad','applebees shrimp'] },
+  'chili':                { name: "Chili's",                 menuKey: 'chilis',            ketoQueries: ['chilis ancho salmon','chilis grilled chicken salad','chilis chicken fajitas no tortilla'] },
   'tgi friday':           { name: "TGI Friday's",            ketoQueries: ['tgi fridays grilled salmon','tgi fridays steak','tgi fridays caesar salad'] },
   'in-n-out':             { name: 'In-N-Out Burger',         menuKey: 'innout',            ketoQueries: ['in n out protein style burger','in n out double double protein style','in n out cheeseburger lettuce wrap'] },
-  'shake shack':          { name: 'Shake Shack',             ketoQueries: ['shake shack lettuce wrap burger','shake shack shackburger no bun','shake shack cheese fries no fries'] },
-  'jimmy john':           { name: "Jimmy John's",            ketoQueries: ['jimmy johns unwich turkey','jimmy johns lettuce wrap italian','jimmy johns unwich club'] },
-  'jersey mike':          { name: "Jersey Mike's",           ketoQueries: ['jersey mikes sub in a tub','jersey mikes chipotle cheesesteak bowl','jersey mikes club bowl'] },
-  'qdoba':                { name: 'Qdoba',                   ketoQueries: ['qdoba steak bowl no rice','qdoba chicken salad','qdoba fajita bowl no beans'] },
+  'shake shack':          { name: 'Shake Shack',             menuKey: 'shakeshack',        ketoQueries: ['shake shack lettuce wrap burger','shake shack shackburger no bun','shake shack cheese fries no fries'] },
+  'jimmy john':           { name: "Jimmy John's",            menuKey: 'jimmyjohns',        ketoQueries: ['jimmy johns unwich turkey','jimmy johns lettuce wrap italian','jimmy johns unwich club'] },
+  'jersey mike':          { name: "Jersey Mike's",           menuKey: 'jerseymikes',       ketoQueries: ['jersey mikes sub in a tub','jersey mikes chipotle cheesesteak bowl','jersey mikes club bowl'] },
+  'qdoba':                { name: 'Qdoba',                   menuKey: 'qdoba',             ketoQueries: ['qdoba steak bowl no rice','qdoba chicken salad','qdoba fajita bowl no beans'] },
   'moe':                  { name: "Moe's Southwest Grill",   ketoQueries: ['moes chicken bowl no rice','moes steak salad','moes carnitas bowl'] },
   'wingstop':             { name: 'Wingstop',                menuKey: 'wingstop',          ketoQueries: ['wingstop classic wings','wingstop original hot wings','wingstop lemon pepper wings'] },
-  'popeyes':              { name: 'Popeyes',                 ketoQueries: ['popeyes blackened chicken tenders','popeyes naked chicken','popeyes green beans'] },
-  'kfc':                  { name: 'KFC',                     ketoQueries: ['kfc grilled chicken breast','kfc original chicken no breading','kfc green beans'] },
-  'panda express':        { name: 'Panda Express',           ketoQueries: ['panda express grilled teriyaki chicken','panda express string bean chicken breast','panda express mushroom chicken'] },
+  'popeyes':              { name: 'Popeyes',                 menuKey: 'popeyes',           ketoQueries: ['popeyes blackened chicken tenders','popeyes naked chicken','popeyes green beans'] },
+  'kfc':                  { name: 'KFC',                     menuKey: 'kfc',               ketoQueries: ['kfc grilled chicken breast','kfc original chicken no breading','kfc green beans'] },
+  'panda express':        { name: 'Panda Express',           menuKey: 'pandaexpress',      ketoQueries: ['panda express grilled teriyaki chicken','panda express string bean chicken breast','panda express mushroom chicken'] },
   'cheesecake factory':   { name: 'The Cheesecake Factory',  ketoQueries: ['cheesecake factory grilled salmon','cheesecake factory steak','cheesecake factory chicken salad'] },
-  'red robin':            { name: 'Red Robin',               ketoQueries: ['red robin lettuce wrap burger','red robin tavern burger no bun','red robin wedgie burger'] },
+  'red robin':            { name: 'Red Robin',               menuKey: 'redrobin',          ketoQueries: ['red robin lettuce wrap burger','red robin tavern burger no bun','red robin wedgie burger'] },
   'carrabba':             { name: "Carrabba's Italian Grill",ketoQueries: ['carrabbas chicken bryan','carrabbas grilled salmon','carrabbas sirloin marsala'] }
 };
 
@@ -182,7 +182,7 @@ app.post('/api/geocode', async (req, res) => {
         formattedAddress: formattedAddress
       });
     } else {
-      console.log('Geocode failed — Google error_message:', response.data.error_message || 'none');
+      console.log('Geocode failed â€” Google error_message:', response.data.error_message || 'none');
       res.status(404).json({ 
         error: 'Location not found. Try a more specific address.',
         success: false 
@@ -655,7 +655,7 @@ Rules:
 - Keep each item name short (2-5 words)
 - Only suggest realistic items for this cuisine type
 
-Respond with ONLY a JSON array of strings, nothing else. Example: ["Grilled Ribeye Steak", "Caesar Salad (no croutons)", "SautÃƒÂ©ed Spinach"]`;
+Respond with ONLY a JSON array of strings, nothing else. Example: ["Grilled Ribeye Steak", "Caesar Salad (no croutons)", "SautÃƒÆ’Ã‚Â©ed Spinach"]`;
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
@@ -980,7 +980,7 @@ function analyzeReviewText(text) {
   // COOKING METHODS (positive signal)
   const healthyCookingKeywords = [
     'grilled', 'baked', 'roasted', 'steamed',
-    'sautÃƒÂ©ed', 'sauteed', 'pan-seared', 'broiled'
+    'sautÃƒÆ’Ã‚Â©ed', 'sauteed', 'pan-seared', 'broiled'
   ];
   const healthyCookingMentions = countMatches(healthyCookingKeywords);
 
@@ -1114,7 +1114,7 @@ function generateSignalsSummary(signals, confidence) {
     return 'No specific keto signals found in reviews';
   }
   
-  return summary.join(' • ');
+  return summary.join(' â€¢ ');
 }
 
 // Helper functions
