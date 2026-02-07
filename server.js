@@ -6,14 +6,14 @@ const { createClerkClient } = require('@clerk/backend');
 const path = require('path');
 const dotenvResult = require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 if (dotenvResult.error) {
-  console.log('⚠️  .env not loaded:', dotenvResult.error.message);
+  console.log('[WARN] .env not loaded:', dotenvResult.error.message);
 } else {
-  console.log('✅ .env loaded from:', path.resolve(__dirname, '.env'));
+  console.log('[OK] .env loaded from:', path.resolve(__dirname, '.env'));
 }
 
 // Load manual chain menu data (accurate nutrition from official sources)
 const chainMenuData = require('./chain-menus.json');
-console.log('✅ Chain menu data loaded:', Object.keys(chainMenuData).join(', '));
+console.log('[OK] Chain menu data loaded:', Object.keys(chainMenuData).join(', '));
 
 // Known chain registry — detectChain() matches against these keys,
 // and the API Ninjas fallback uses ketoQueries for nutrition lookups
@@ -72,9 +72,9 @@ console.log('CLERK_SECRET_KEY exists:', !!process.env.CLERK_SECRET_KEY);
 let clerkClient = null;
 if (process.env.CLERK_SECRET_KEY) {
   clerkClient = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
-  console.log('✅ Clerk client initialized');
+  console.log('[OK] Clerk client initialized');
 } else {
-  console.log('⚠️ Clerk secret key not found - auth verification disabled');
+  console.log('[WARN] Clerk secret key not found - auth verification disabled');
 }
 
 // Initialize OpenAI client
@@ -83,9 +83,9 @@ if (process.env.OPENAI_API_KEY) {
   openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
   });
-  console.log('✅ OpenAI client initialized');
+  console.log('[OK] OpenAI client initialized');
 } else {
-  console.log('⚠️ OpenAI API key not found - AI suggestions will be disabled');
+  console.log('[WARN] OpenAI API key not found - AI suggestions will be disabled');
 }
 
 // Try to load database with error handling
@@ -103,9 +103,9 @@ try {
   getRestaurantSignals = db.getRestaurantSignals;
   upsertRestaurantSignals = db.upsertRestaurantSignals;
 
-  console.log('✅ Database module loaded successfully');
+  console.log('[OK] Database module loaded successfully');
 } catch (error) {
-  console.error('❌ FAILED TO LOAD DATABASE MODULE:');
+  console.error('[ERROR] FAILED TO LOAD DATABASE MODULE:');
   console.error('Error message:', error.message);
   console.error('Error stack:', error.stack);
 }
@@ -135,7 +135,7 @@ async function requireAuth(req, res, next) {
     req.userId = userId;
     next();
   } catch (error) {
-    console.error('❌ Token verification failed:', error.message);
+    console.error('[ERROR] Token verification failed:', error.message);
     return res.status(401).json({ error: 'Invalid or expired token' });
   }
 }
@@ -233,18 +233,17 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
       return res.json({ restaurants, searchType: 'text' });
     }
     
+    // Search for ALL restaurant types (broader search)
+    // We'll filter and score on the backend based on keto-friendliness
     const searchGroups = [
       {
-        name: 'Premium Keto',
-        types: ['steak_house', 'seafood_restaurant', 'barbecue_restaurant', 'brazilian_restaurant']
+        name: 'All Restaurants',
+        types: ['restaurant']  // Catch everything, then filter by keto score
       },
       {
-        name: 'Casual & International',
-        types: ['american_restaurant', 'mediterranean_restaurant', 'greek_restaurant', 'mexican_restaurant', 'hamburger_restaurant', 'sandwich_shop']
-      },
-      {
-        name: 'Bars & More',
-        types: ['bar', 'restaurant', 'breakfast_restaurant', 'brunch_restaurant']
+        name: 'Specific Keto-Friendly',
+        types: ['steak_house', 'seafood_restaurant', 'barbecue_restaurant', 'brazilian_restaurant', 
+                'mediterranean_restaurant', 'greek_restaurant', 'mexican_restaurant']
       }
     ];
     
@@ -290,7 +289,7 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
         });
         
       } catch (error) {
-        console.error(`    ❌ ${group.name} search failed:`, error.message);
+        console.error(`    [ERROR] ${group.name} search failed:`, error.message);
       }
     });
     
@@ -312,22 +311,37 @@ app.post('/api/search-keto-restaurants', async (req, res) => {
 
 // Helper function to process restaurant data
 function processRestaurants(places, userLat, userLon) {
-  const restaurants = places.map(place => ({
-    id: place.id,
-    name: place.displayName?.text || 'Unknown',
-    address: place.formattedAddress || 'Address not available',
-    rating: place.rating || 4.0,
-    priceLevel: place.priceLevel ? getPriceLevel(place.priceLevel) : 2,
-    cuisine: getCuisineType(place.types || []),
-    distance: calculateDistance(userLat, userLon, 
-      place.location.latitude, 
-      place.location.longitude),
-    lat: place.location.latitude,
-    lng: place.location.longitude,
-    ketoScore: calculateKetoScore(place),
-    diningOptions: getDiningOptions(place),
-    isChain: detectChain(place.displayName?.text || '') !== null
-  }));
+  console.log(`[DEBUG] Processing ${places.length} places from Google`);
+  
+  const restaurants = places.map(place => {
+    const name = place.displayName?.text || 'Unknown';
+    const types = place.types || [];
+    const cuisine = getCuisineType(types, name);
+    
+    // Debug log for first few restaurants
+    if (restaurants.length < 5) {
+      console.log(`[DEBUG] Restaurant: ${name}`);
+      console.log(`[DEBUG]   Types: ${types.join(', ')}`);
+      console.log(`[DEBUG]   Detected cuisine: ${cuisine}`);
+    }
+    
+    return {
+      id: place.id,
+      name: name,
+      address: place.formattedAddress || 'Address not available',
+      rating: place.rating || 4.0,
+      priceLevel: place.priceLevel ? getPriceLevel(place.priceLevel) : 2,
+      cuisine: cuisine,
+      distance: calculateDistance(userLat, userLon, 
+        place.location.latitude, 
+        place.location.longitude),
+      lat: place.location.latitude,
+      lng: place.location.longitude,
+      ketoScore: calculateKetoScore(place),
+      diningOptions: getDiningOptions(place),
+      isChain: detectChain(name) !== null
+    };
+  });
 
   // Sort: known chains first, then by keto score, then by distance
   return restaurants
@@ -352,7 +366,7 @@ app.post('/api/submit-review', requireAuth, async (req, res) => {
   try {
     
     if (!saveReview) {
-      console.error('❌ ERROR: saveReview function is not available!');
+      console.error('[ERROR] ERROR: saveReview function is not available!');
       return res.status(500).json({ 
         error: 'Database not initialized. The database module failed to load - check server logs.',
         hint: 'Make sure DATABASE_URL is set in Railway variables'
@@ -372,10 +386,10 @@ app.post('/api/submit-review', requireAuth, async (req, res) => {
       userId: req.userId  // User ID from Clerk token
     });
     
-    console.log('✅ Review saved successfully! Review ID:', review.id, 'User ID:', review.user_id);
+    console.log('[OK] Review saved successfully! Review ID:', review.id, 'User ID:', review.user_id);
     res.json({ success: true, message: 'Review submitted successfully!', review });
   } catch (error) {
-    console.error('❌ Error submitting review:', error);
+    console.error('[ERROR] Error submitting review:', error);
     console.error('Error details:', error.message);
     res.status(500).json({ 
       error: 'Failed to submit review', 
@@ -480,7 +494,7 @@ app.get('/api/my-reviews', requireAuth, async (req, res) => {
     }
     
     const reviews = await getUserReviews(req.userId);
-    console.log(`✅ Fetched ${reviews.length} reviews for user ${req.userId}`);
+    console.log(`[OK] Fetched ${reviews.length} reviews for user ${req.userId}`);
     
     res.json({ reviews, reviewCount: reviews.length });
   } catch (error) {
@@ -502,7 +516,7 @@ app.delete('/api/reviews/:reviewId', requireAuth, async (req, res) => {
       return res.status(404).json({ error: 'Review not found or you do not have permission to delete it' });
     }
     
-    console.log(`✅ Review ${req.params.reviewId} deleted by user ${req.userId}`);
+    console.log(`[OK] Review ${req.params.reviewId} deleted by user ${req.userId}`);
     res.json({ success: true, message: 'Review deleted successfully' });
   } catch (error) {
     console.error('Error deleting review:', error);
@@ -530,7 +544,7 @@ app.put('/api/reviews/:reviewId', requireAuth, async (req, res) => {
       return res.status(404).json({ error: 'Review not found or you do not have permission to edit it' });
     }
     
-    console.log(`✅ Review ${req.params.reviewId} updated by user ${req.userId}`);
+    console.log(`[OK] Review ${req.params.reviewId} updated by user ${req.userId}`);
     res.json({ success: true, message: 'Review updated successfully', review: updated });
   } catch (error) {
     console.error('Error updating review:', error);
@@ -560,7 +574,7 @@ Rules:
 - Keep each item name short (2-5 words)
 - Only suggest realistic items for this cuisine type
 
-Respond with ONLY a JSON array of strings, nothing else. Example: ["Grilled Ribeye Steak", "Caesar Salad (no croutons)", "Sautéed Spinach"]`;
+Respond with ONLY a JSON array of strings, nothing else. Example: ["Grilled Ribeye Steak", "Caesar Salad (no croutons)", "SautÃƒÂ©ed Spinach"]`;
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
@@ -618,7 +632,7 @@ app.post('/api/analyze-google-reviews/:restaurantId', async (req, res) => {
             reasons: summary
           });
 
-          console.log(`✅ Chain short-circuit for ${chainInfo.name}   skipping Google review scan`);
+          console.log(`[OK] Chain short-circuit for ${chainInfo.name}   skipping Google review scan`);
 
           return res.json({
             success: true,
@@ -885,7 +899,7 @@ function analyzeReviewText(text) {
   // COOKING METHODS (positive signal)
   const healthyCookingKeywords = [
     'grilled', 'baked', 'roasted', 'steamed',
-    'sautéed', 'sauteed', 'pan-seared', 'broiled'
+    'sautÃƒÂ©ed', 'sauteed', 'pan-seared', 'broiled'
   ];
   const healthyCookingMentions = countMatches(healthyCookingKeywords);
 
@@ -1012,7 +1026,7 @@ function generateSignalsSummary(signals, confidence) {
   }
   
   if (signals.hiddenCarbMentions > 0) {
-    summary.push(`⚠️ ${signals.hiddenCarbMentions} warning${signals.hiddenCarbMentions > 1 ? 's' : ''} about hidden carbs`);
+    summary.push(`[WARN] ${signals.hiddenCarbMentions} warning${signals.hiddenCarbMentions > 1 ? 's' : ''} about hidden carbs`);
   }
   
   if (summary.length === 0) {
@@ -1041,19 +1055,41 @@ function calculateChainKetoScore(menuData) {
   const avgCarbs = combos.reduce((sum, c) => sum + c.carbs, 0) / combos.length;
   const hasZeroCarb = combos.some(c => c.carbs === 0);
 
+  // Count items that require modifications (bunless, no bun, no bread, etc.)
+  const modificationKeywords = ['no bun', 'bunless', 'no bread', 'no biscuit', 'no croissant', 
+                                'no muffin', 'no tortilla', 'no rice', 'protein style', 'lettuce wrap'];
+  const itemsRequiringMods = combos.filter(c => {
+    const orderAs = (c.orderAs || '').toLowerCase();
+    const itemName = (c.name || '').toLowerCase();
+    return modificationKeywords.some(keyword => orderAs.includes(keyword) || itemName.includes(keyword));
+  }).length;
+  
+  const customizationRatio = itemsRequiringMods / combos.length;
+
   // ketoNaturalness reflects how naturally keto-friendly the restaurant's core menu is.
-  // A steakhouse scores high because steaks ARE the menu.
-  // A donut shop scores low because every keto option requires throwing away the product.
+  // A steakhouse scores high because steaks ARE the menu (0.95).
+  // A burger joint scores medium because you have to order bunless (0.65).
+  // A donut shop scores low because nothing is keto without heavy modification (0.3).
   const naturalness = menuData.ketoNaturalness || 0.70;
 
-  let score = 0.50 + (naturalness * 0.20);                  // Base: 0.50 (low naturalness) → 0.70 (high)
-  score += (lowCarbCount / combos.length) * 0.20;           // Up to +0.20 if all items <= 5g carbs
-  score += Math.max(0, (12 - avgCarbs) / 12) * 0.06;       // Up to +0.06 for low average carbs
-  if (hasZeroCarb) score += 0.02;                           // Small bonus for 0g carb options
+  // Make naturalness the PRIMARY factor (0.35 to 0.70 range)
+  let score = 0.35 + (naturalness * 0.35);
+  
+  // Penalty for high customization ratio (-0.15 max)
+  score -= (customizationRatio * 0.15);
+  
+  // Bonus for many low-carb options (up to +0.15)
+  score += (lowCarbCount / combos.length) * 0.15;
+  
+  // Bonus for low average carbs (up to +0.08)
+  score += Math.max(0, (12 - avgCarbs) / 12) * 0.08;
+  
+  // Small bonus for zero-carb options
+  if (hasZeroCarb) score += 0.02;
 
-  return Math.min(0.97, Math.round(score * 100) / 100);    // Cap 0.97 — chain still has non-keto items
+  // Cap at 0.95 for chains (always have some non-keto items)
+  return Math.min(0.95, Math.max(0.30, Math.round(score * 100) / 100));
 }
-
 function calculateKetoScore(place) {
   const name = place.displayName?.text || '';
 
@@ -1106,7 +1142,39 @@ function calculateKetoScore(place) {
   return Math.max(0.2, Math.min(1.0, score));
 }
 
-function getCuisineType(types) {
+function getCuisineType(types, name = '') {
+  const nameLower = name.toLowerCase();
+  
+  // First, check restaurant name for cuisine keywords
+  // This catches places like "Cava" (Mediterranean) even if Google tags them generically
+  const nameKeywords = {
+    'Mediterranean': ['mediterranean', 'cava', 'hummus', 'falafel', 'shawarma', 'pita', 'tzatziki'],
+    'Greek': ['greek', 'gyro', 'souvlaki', 'moussaka'],
+    'Mexican': ['mexican', 'taco', 'burrito', 'chipotle', 'qdoba', 'taqueria', 'cantina'],
+    'Italian': ['italian', 'pizza', 'pasta', 'trattoria', 'pizzeria', 'ristorante'],
+    'Chinese': ['chinese', 'wok', 'panda', 'dynasty', 'mandarin'],
+    'Japanese': ['japanese', 'sushi', 'ramen', 'hibachi', 'teriyaki'],
+    'Thai': ['thai', 'pad thai', 'curry'],
+    'Indian': ['indian', 'tandoori', 'curry', 'biryani', 'masala'],
+    'BBQ': ['bbq', 'barbecue', 'smokehouse', 'brisket', 'ribs'],
+    'Steakhouse': ['steakhouse', 'steak house', 'chophouse', 'prime'],
+    'Seafood': ['seafood', 'fish', 'lobster', 'oyster', 'crab shack'],
+    'Brazilian': ['brazilian', 'churrascaria', 'gaucho'],
+    'Vietnamese': ['vietnamese', 'pho', 'banh mi'],
+    'Korean': ['korean', 'bbq', 'kimchi'],
+    'Middle Eastern': ['middle eastern', 'kebab', 'shawarma', 'falafel']
+  };
+  
+  // Check name for cuisine keywords
+  for (const [cuisine, keywords] of Object.entries(nameKeywords)) {
+    for (const keyword of keywords) {
+      if (nameLower.includes(keyword)) {
+        return cuisine;
+      }
+    }
+  }
+  
+  // Then check Google's type tags
   const cuisineMap = {
     'steak_house': 'Steakhouse',
     'seafood_restaurant': 'Seafood',
@@ -1121,13 +1189,21 @@ function getCuisineType(types) {
     'thai_restaurant': 'Thai',
     'barbecue_restaurant': 'BBQ',
     'brazilian_restaurant': 'Brazilian',
+    'vietnamese_restaurant': 'Vietnamese',
+    'korean_restaurant': 'Korean',
+    'middle_eastern_restaurant': 'Middle Eastern',
     'bar': 'Bar & Grill',
-    'sports_bar': 'Sports Bar'
+    'sports_bar': 'Sports Bar',
+    'fast_food_restaurant': 'Fast Food',
+    'sandwich_shop': 'Sandwiches',
+    'hamburger_restaurant': 'Burgers'
   };
   
   for (const type of types) {
     if (cuisineMap[type]) return cuisineMap[type];
   }
+  
+  // Default to American only if we really can't tell
   return 'American';
 }
 
@@ -1169,14 +1245,14 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 // Initialize database on startup
 if (initDatabase) {
   initDatabase()
-    .then(() => console.log('✅ Database tables initialized'))
-    .catch(err => console.error('❌ Database initialization error:', err));
+    .then(() => console.log('[OK] Database tables initialized'))
+    .catch(err => console.error('[ERROR] Database initialization error:', err));
 } else {
-  console.error('❌ Cannot initialize database - initDatabase function not available');
+  console.error('[ERROR] Cannot initialize database - initDatabase function not available');
 }
 
 app.listen(PORT, () => {
-  console.log(`🚀 Keto Hunter API running on port ${PORT}`);
-  console.log(`Database status: ${saveReview ? '✅ Connected' : '❌ Not Connected'}`);
-  console.log(`Clerk status: ${clerkClient ? '✅ Configured' : '❌ Not Configured'}`);
+  console.log(`Keto Hunter API running on port ${PORT}`);
+  console.log(`Database status: ${saveReview ? '[OK] Connected' : '[ERROR] Not Connected'}`);
+  console.log(`Clerk status: ${clerkClient ? '[OK] Configured' : '[ERROR] Not Configured'}`);
 });
