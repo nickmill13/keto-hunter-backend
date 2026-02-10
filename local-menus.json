@@ -1,0 +1,12 @@
+{
+  "_example_place_id": {
+    "name": "Example Restaurant",
+    "combos": [
+      { "name": "Grilled Salmon", "carbs": 2, "protein": 34, "fat": 18, "calories": 310, "orderAs": "Grilled salmon with side salad instead of rice" },
+      { "name": "Ribeye Steak", "carbs": 0, "protein": 42, "fat": 28, "calories": 420 }
+    ],
+    "orderTips": ["Ask for vegetables instead of pasta", "Dressings on the side"],
+    "source": "Menu verified by owner",
+    "ketoNaturalness": 0.7
+  }
+}

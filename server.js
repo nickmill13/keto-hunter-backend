@@ -15,6 +15,14 @@ if (dotenvResult.error) {
 const chainMenuData = require('./chain-menus.json');
 console.log('[OK] Chain menu data loaded:', Object.keys(chainMenuData).join(', '));
 
+// Load manual local restaurant menu data (keyed by Google Place ID)
+const localMenuDataFile = require('./local-menus.json');
+// Filter out the example entry
+const localMenuVerified = Object.fromEntries(
+  Object.entries(localMenuDataFile).filter(([key]) => !key.startsWith('_'))
+);
+console.log(`[OK] Local menu data loaded: ${Object.keys(localMenuVerified).length} restaurants`);
+
 // Known chain registry â€” detectChain() matches against these keys,
 // and the API Ninjas fallback uses ketoQueries for nutrition lookups
 const CHAIN_REGISTRY = {
@@ -428,16 +436,12 @@ function processRestaurants(places, userLat, userLon) {
   console.log(`[DEBUG] Cuisine breakdown:`, cuisineCounts);
   
   return filtered.sort((a, b) => {
-      // Prioritize known chains
-      if (a.isChain && !b.isChain) return -1;
-      if (!a.isChain && b.isChain) return 1;
-      
-      // Then sort by keto score
+      // Sort by keto score first (chains and locals compete fairly)
       if (Math.abs(a.ketoScore - b.ketoScore) > 0.1) {
         return b.ketoScore - a.ketoScore;
       }
-      
-      // Finally by distance
+
+      // Then by distance
       return parseFloat(a.distance) - parseFloat(b.distance);
     });
 }
@@ -844,9 +848,23 @@ app.get('/api/chain-menu/:restaurantId', async (req, res) => {
       return res.json({ isChain: false, items: [] });
     }
     
+    // Check for verified local menu data (by Place ID)
+    const localVerified = localMenuVerified[restaurantId];
+    if (localVerified && localVerified.combos && localVerified.combos.length > 0) {
+      console.log(`[OK] Verified local menu found for "${localVerified.name}" (${restaurantId})`);
+      return res.json({
+        isChain: true, // reuse chain rendering in frontend (green verified style)
+        chainName: localVerified.name,
+        items: localVerified.combos,
+        orderTips: localVerified.orderTips || [],
+        source: localVerified.source || 'Locally verified menu',
+        message: `${localVerified.combos.length} verified keto options`
+      });
+    }
+
     // Check if it's a known chain
     const chainInfo = detectChain(restaurantName);
-    
+
     if (!chainInfo) {
       return res.json({ isChain: false, items: [] });
     }
@@ -914,6 +932,121 @@ app.get('/api/chain-menu/:restaurantId', async (req, res) => {
   } catch (error) {
     console.error('Chain menu error:', error.message);
     res.status(500).json({ error: 'Failed to fetch chain menu data', isChain: false, items: [] });
+  }
+});
+
+// AI-estimated menu analysis for local (non-chain) restaurants
+app.post('/api/local-menu-analysis', async (req, res) => {
+  try {
+    const { restaurantName, cuisine, reviewSnippets } = req.body;
+
+    if (!restaurantName) {
+      return res.status(400).json({ error: 'restaurantName is required' });
+    }
+
+    // Only for non-chain restaurants
+    if (detectChain(restaurantName)) {
+      return res.json({ isLocal: false, items: [] });
+    }
+
+    if (!openai) {
+      return res.json({
+        isLocal: true,
+        items: [],
+        orderTips: [],
+        message: 'AI not configured'
+      });
+    }
+
+    const reviewContext = reviewSnippets && reviewSnippets.length > 0
+      ? `\nGoogle reviewers mention these foods/items: ${reviewSnippets.join(', ')}`
+      : '';
+
+    const prompt = `You are a keto diet expert analyzing a local restaurant for keto-friendly options.
+
+Restaurant: "${restaurantName}"
+Cuisine type: ${cuisine || 'Unknown'}${reviewContext}
+
+Based on what a ${cuisine || 'general'} restaurant typically serves, identify 5-7 dishes that are keto-friendly or can be made keto with simple modifications.
+
+Respond with ONLY valid JSON in this exact format (no markdown, no explanation):
+{
+  "items": [
+    {
+      "name": "Dish Name",
+      "description": "Brief description of the dish",
+      "carbs": 5,
+      "protein": 30,
+      "fat": 20,
+      "calories": 350,
+      "modification": "any modification needed, or null"
+    }
+  ],
+  "orderTips": [
+    "Tip for ordering keto at this type of restaurant"
+  ],
+  "ketoFriendliness": "brief 1-sentence assessment of how keto-friendly this cuisine typically is"
+}
+
+Rules:
+- Estimate realistic nutrition values for each dish
+- carbs should reflect net carbs after any modification
+- Include modifications like "no rice", "no bun" where needed
+- Keep items realistic for the cuisine type
+- Order tips should be specific and actionable`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 800,
+      temperature: 0.7
+    });
+
+    const responseText = completion.choices[0].message.content.trim();
+
+    let parsed;
+    try {
+      parsed = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('[LOCAL-MENU] Failed to parse AI response:', responseText);
+      return res.json({
+        isLocal: true,
+        items: [],
+        orderTips: [],
+        message: 'Failed to parse AI analysis'
+      });
+    }
+
+    const items = (parsed.items || []).map(item => ({
+      name: item.name,
+      description: item.description || '',
+      carbs: Math.round((item.carbs || 0) * 10) / 10,
+      protein: Math.round((item.protein || 0) * 10) / 10,
+      fat: Math.round((item.fat || 0) * 10) / 10,
+      calories: Math.round(item.calories || 0),
+      modification: item.modification || null,
+      estimated: true
+    }));
+
+    console.log(`[LOCAL-MENU] Generated ${items.length} estimated keto items for "${restaurantName}" (${cuisine})`);
+
+    res.json({
+      isLocal: true,
+      restaurantName,
+      cuisine,
+      items,
+      orderTips: parsed.orderTips || [],
+      ketoFriendliness: parsed.ketoFriendliness || '',
+      message: `${items.length} AI-estimated keto options`
+    });
+
+  } catch (error) {
+    console.error('[LOCAL-MENU] Error:', error.message);
+    res.status(500).json({
+      error: 'Failed to analyze local restaurant menu',
+      isLocal: true,
+      items: []
+    });
   }
 });
 
@@ -1184,43 +1317,96 @@ function calculateKetoScore(place) {
     }
   }
 
-  // Fallback: estimate from restaurant name and Google type keywords
-  let score = 0.6;
+  // Fallback: estimate from restaurant name, Google type keywords, and rating
   const nameLower = name.toLowerCase();
   const types = (place.types || []).join(' ').toLowerCase();
+  const rating = place.rating || 4.0;
 
-  if (nameLower.includes('grill') || nameLower.includes('grille')) score += 0.2;
-  if (nameLower.includes('steak') || nameLower.includes('steakhouse')) score += 0.3;
-  if (nameLower.includes('bbq') || nameLower.includes('barbecue') || nameLower.includes('smokehouse')) score += 0.25;
-  if (nameLower.includes('seafood') || nameLower.includes('fish')) score += 0.2;
-  if (nameLower.includes('meat') || nameLower.includes('butcher')) score += 0.2;
-  if (nameLower.includes('salad')) score += 0.15;
-  if (nameLower.includes('protein') || nameLower.includes('fit') || nameLower.includes('healthy')) score += 0.2;
+  // Check Google types as an array for precise matching
+  const typesArray = place.types || [];
 
-  if (types.includes('steak_house')) score += 0.3;
-  if (types.includes('seafood_restaurant')) score += 0.25;
-  if (types.includes('barbecue_restaurant')) score += 0.25;
-  if (types.includes('brazilian_restaurant')) score += 0.2;
-  if (types.includes('mediterranean_restaurant')) score += 0.15;
-  if (types.includes('greek_restaurant')) score += 0.15;
+  // HIGH-SUGAR/CARB overrides — check these FIRST, before cuisine scoring.
+  // These places are fundamentally anti-keto regardless of other type tags.
+  const highCarbTypes = ['juice_shop', 'acai_shop', 'smoothie_shop', 'ice_cream_shop',
+                         'bakery', 'dessert_shop', 'dessert_restaurant', 'candy_store',
+                         'donut_shop', 'bagel_shop', 'cookie_shop'];
+  const hasHighCarbType = typesArray.some(t => highCarbTypes.includes(t));
 
+  if (hasHighCarbType) {
+    // Start very low — these are sugar-forward businesses
+    return Math.max(0.2, Math.min(0.35, 0.25));
+  }
+
+  // Cuisine-type base scores (wider range than the old flat 0.6)
+  let score = 0.55; // default base
+
+  // Name-based cuisine override: if the restaurant name explicitly states a cuisine,
+  // trust that over Google's secondary type tags. A place called "Italian Bistro"
+  // that Google also tags as steak_house should score as Italian, not as a steakhouse.
+  const nameCuisineOverride =
+    (nameLower.includes('italian') || nameLower.includes('trattoria') || nameLower.includes('pizzeria') || nameLower.includes('ristorante')) ? 0.48 :
+    (nameLower.includes('chinese') || nameLower.includes('wok') || nameLower.includes('mandarin')) ? 0.50 :
+    (nameLower.includes('thai')) ? 0.55 :
+    (nameLower.includes('sushi') || nameLower.includes('ramen')) ? 0.58 :
+    (nameLower.includes('indian') || nameLower.includes('tandoori')) ? 0.60 :
+    null;
+
+  if (nameCuisineOverride !== null) {
+    score = nameCuisineOverride;
+  }
+  // Otherwise use Google types for base score
+  else if (types.includes('steak_house'))              score = 0.80;
+  else if (types.includes('barbecue_restaurant')) score = 0.75;
+  else if (types.includes('brazilian_restaurant'))score = 0.75;
+  else if (types.includes('seafood_restaurant'))  score = 0.72;
+  else if (types.includes('mediterranean_restaurant')) score = 0.68;
+  else if (types.includes('greek_restaurant'))    score = 0.68;
+  else if (types.includes('indian_restaurant'))   score = 0.60;
+  else if (types.includes('mexican_restaurant'))  score = 0.58;
+  else if (types.includes('japanese_restaurant')) score = 0.58;
+  else if (types.includes('american_restaurant')) score = 0.58;
+  else if (types.includes('korean_restaurant'))   score = 0.57;
+  else if (types.includes('thai_restaurant'))     score = 0.55;
+  else if (types.includes('chinese_restaurant'))  score = 0.50;
+  else if (types.includes('italian_restaurant'))  score = 0.48;
+  else if (types.includes('hamburger_restaurant'))score = 0.55;
+
+  // Name-based boosts (stack on top of cuisine base)
+  if (nameLower.includes('grill') || nameLower.includes('grille')) score += 0.10;
+  if (nameLower.includes('steak') || nameLower.includes('steakhouse')) score += 0.15;
+  if (nameLower.includes('bbq') || nameLower.includes('barbecue') || nameLower.includes('smokehouse')) score += 0.12;
+  if (nameLower.includes('seafood') || nameLower.includes('fish')) score += 0.10;
+  if (nameLower.includes('meat') || nameLower.includes('butcher')) score += 0.10;
+  if (nameLower.includes('salad')) score += 0.08;
+  if (nameLower.includes('protein') || nameLower.includes('fit') || nameLower.includes('healthy')) score += 0.10;
+  if (nameLower.includes('wings') || nameLower.includes('wing')) score += 0.08;
+
+  // Negative name signals
   if (nameLower.includes('pizza')) score -= 0.4;
   if (nameLower.includes('pasta') || nameLower.includes('noodle')) score -= 0.35;
   if (nameLower.includes('bakery') || nameLower.includes('bread')) score -= 0.4;
   if (nameLower.includes('donut') || nameLower.includes('doughnut')) score -= 0.5;
   if (nameLower.includes('ice cream') || nameLower.includes('frozen yogurt')) score -= 0.4;
   if (nameLower.includes('pancake') || nameLower.includes('waffle')) score -= 0.4;
+  if (nameLower.includes('smoothie') || nameLower.includes('juice') || nameLower.includes('acai')) score -= 0.4;
+  if (nameLower.includes('berry') && !nameLower.includes('dingle')) score -= 0.25;
+  if (nameLower.includes('bubble tea') || nameLower.includes('boba')) score -= 0.35;
+  if (nameLower.includes('froyo') || nameLower.includes('yogurt')) score -= 0.3;
   if (nameLower.includes('buffet')) score -= 0.2;
   if (nameLower.includes('casino')) score -= 0.3;
   if (nameLower.includes('cafe') && !nameLower.includes('grill')) score -= 0.1;
 
-  if (types.includes('bakery')) score -= 0.35;
-  if (types.includes('dessert_shop')) score -= 0.3;
-  if (types.includes('ice_cream_shop')) score -= 0.4;
+  // Negative type signals (for types not caught by the early override)
   if (types.includes('pizza_restaurant')) score -= 0.35;
   if (types.includes('fast_food_restaurant')) score -= 0.05;
 
-  return Math.max(0.2, Math.min(1.0, score));
+  // Rating-based minor boost: higher-rated restaurants tend to be more accommodating
+  // +0.05 for 4.5+, +0.03 for 4.0+, 0 for 3.5+, -0.03 below 3.5
+  if (rating >= 4.5)      score += 0.05;
+  else if (rating >= 4.0) score += 0.03;
+  else if (rating < 3.5)  score -= 0.03;
+
+  return Math.max(0.2, Math.min(0.92, score));
 }
 
 function getCuisineType(types, name = '') {

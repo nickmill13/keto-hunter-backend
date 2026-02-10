@@ -171,7 +171,6 @@ async function getRestaurantSignals(restaurantId) {
 }
 
 // Upsert (insert or update) signals for a restaurant
-// Upsert (insert or update) signals for a restaurant
 async function upsertRestaurantSignals(restaurantId, signals) {
   const {
     ketoMentions = 0,
