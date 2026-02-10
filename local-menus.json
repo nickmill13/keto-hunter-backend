@@ -8,5 +8,100 @@
     "orderTips": ["Ask for vegetables instead of pasta", "Dressings on the side"],
     "source": "Menu verified by owner",
     "ketoNaturalness": 0.7
+  },
+  "ChIJw8gXvYhO5IkRZ1oPqyPlBKU": {
+    "name": "Grid Iron Ale House & Grille",
+    "source": "Menu from gridironri.com (saved Nov 2025)",
+    "combos": [
+      {
+        "name": "Bunless BYO Burger with Cheese",
+        "carbs": 2,
+        "protein": 40,
+        "fat": 32,
+        "calories": 460,
+        "orderAs": "BYO Burger ($10.99), no bun, with cheddar or pepper jack, lettuce, tomato"
+      },
+      {
+        "name": "Bunless Grid Iron Burger",
+        "carbs": 3,
+        "protein": 48,
+        "fat": 42,
+        "calories": 580,
+        "orderAs": "Grid Iron Burger ($14.99), no bun — stuffed with bacon, chorizo, Swiss, topped with more Swiss and bacon"
+      },
+      {
+        "name": "Bunless Smokehouse Burger",
+        "carbs": 8,
+        "protein": 44,
+        "fat": 38,
+        "calories": 550,
+        "orderAs": "Smokehouse Burger ($13.99), no bun, ask for no onion rings to cut carbs further"
+      },
+      {
+        "name": "Dozen Wings - Buffalo",
+        "carbs": 0,
+        "protein": 48,
+        "fat": 36,
+        "calories": 520,
+        "orderAs": "Dozen wings ($11.99) with buffalo sauce"
+      },
+      {
+        "name": "Dozen Wings - Garlic Parm",
+        "carbs": 2,
+        "protein": 48,
+        "fat": 40,
+        "calories": 560,
+        "orderAs": "Dozen wings ($11.99) with garlic parm sauce"
+      },
+      {
+        "name": "Dozen Wings - Old Bay Dry Rub",
+        "carbs": 0,
+        "protein": 48,
+        "fat": 34,
+        "calories": 500,
+        "orderAs": "Dozen wings ($11.99) with old bay seasoned dry rub"
+      },
+      {
+        "name": "Steakhouse Salad",
+        "carbs": 5,
+        "protein": 42,
+        "fat": 30,
+        "calories": 460,
+        "orderAs": "Steakhouse Salad ($15.99) — 7oz rib-eye over romaine with blue cheese crumbles, skip croutons"
+      },
+      {
+        "name": "Grilled Chicken Cobb Salad",
+        "carbs": 6,
+        "protein": 38,
+        "fat": 28,
+        "calories": 430,
+        "orderAs": "Grilled Chicken Cobb Salad ($12.99), no croutons — has egg, bacon, and guacamole"
+      },
+      {
+        "name": "Rib-Eye Steak (no bread)",
+        "carbs": 3,
+        "protein": 44,
+        "fat": 35,
+        "calories": 500,
+        "orderAs": "Rib-Eye Steak ($15.99) with sauteed mushrooms and onions, no bread, sub coleslaw for fries"
+      },
+      {
+        "name": "Marinated Chicken Breast (no bread)",
+        "carbs": 2,
+        "protein": 36,
+        "fat": 12,
+        "calories": 260,
+        "orderAs": "Marinated Chicken Breast ($11.99), no bread, sub coleslaw for fries"
+      }
+    ],
+    "orderTips": [
+      "All burgers are 1/2 lb Angus beef — ask for no bun, served on a plate",
+      "Wings are your best bet — 19 sauces available. Best low-carb sauces: buffalo, garlic parm, old bay dry rub, salt & vinegar dry rub, sour cream & onion dry rub",
+      "Avoid sweet wing sauces: sweet & sour, maple bacon, honey garlic, Mississippi honey BBQ, sweet chili, teriyaki, and Asian",
+      "Sub coleslaw ($1.00 extra) instead of fries with any burger or sandwich",
+      "Salads: always skip croutons and get dressing on the side",
+      "The Steakhouse Salad with 7oz rib-eye is a great keto meal"
+    ],
+    "ketoNaturalness": 0.65
   }
 }
