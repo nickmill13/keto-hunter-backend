@@ -3123,5 +3123,311 @@
       ]
     },
     "ketoNaturalness": 0.4
+  },
+  "legalseafoods": {
+    "chainName": "Legal Sea Foods",
+    "source": "Estimated from official Legal Sea Foods Cranston menu PDFs (Jan 2026) and standard seafood nutrition data",
+    "lastUpdated": "2026-01",
+    "orderTips": [
+      "Use the 'New Legal Experience' format — pick a grilled protein + flavor style + two keto sides (broccoli, bok choy & kimchi)",
+      "Ask for 'simply prepared with lemon & olive oil' — zero carbs added and delicious",
+      "Cajun Blackened & Hot Butter and Garlic Herb Chimichurri are also keto-safe flavor styles",
+      "Skip rice pilaf, potato wedges, and fries — choose steamed broccoli or Thai bok choy & kimchi as sides",
+      "Greek Salad without chickpeas and Caesar without croutons are excellent bases — add any grilled protein",
+      "The raw bar is naturally very low carb — oysters, clams, shrimp cocktail, sashimi, and tuna tartare are all great",
+      "At brunch, order omelets without home fries — the Farmers Omelet and Cajun Shrimp Omelet are solid keto picks"
+    ],
+    "combos": [
+      {
+        "name": "Grilled Salmon with Broccoli & Bok Choy",
+        "calories": 520,
+        "carbs": 7,
+        "fat": 30,
+        "protein": 42,
+        "orderAs": "Salmon (grilled) → Simply Prepared or Lemon Butter & Crispy Capers, Steamed Broccoli, Thai Bok Choy & Kimchi"
+      },
+      {
+        "name": "Seared Yellowfin Tuna with Broccoli & Bok Choy",
+        "calories": 420,
+        "carbs": 7,
+        "fat": 16,
+        "protein": 54,
+        "orderAs": "Yellowfin Tuna (seared) → Simply Prepared or Cajun Blackened & Hot Butter, Steamed Broccoli, Thai Bok Choy & Kimchi"
+      },
+      {
+        "name": "Boneless Ribeye 16oz with Broccoli",
+        "calories": 940,
+        "carbs": 4,
+        "fat": 66,
+        "protein": 82,
+        "orderAs": "Boneless Ribeye → Steamed Broccoli, Thai Bok Choy & Kimchi"
+      },
+      {
+        "name": "Sirloin Steak Tips 12oz with Broccoli & Bok Choy",
+        "calories": 580,
+        "carbs": 7,
+        "fat": 28,
+        "protein": 70,
+        "orderAs": "Sirloin Steak Tips (grilled) → Steamed Broccoli, Thai Bok Choy & Kimchi"
+      },
+      {
+        "name": "Steamed Lobster with Drawn Butter & Broccoli",
+        "calories": 440,
+        "carbs": 4,
+        "fat": 26,
+        "protein": 40,
+        "orderAs": "Steamed Lobster → Drawn Butter, Steamed Broccoli, Thai Bok Choy & Kimchi"
+      },
+      {
+        "name": "Half Roasted Chicken with Broccoli",
+        "calories": 640,
+        "carbs": 4,
+        "fat": 38,
+        "protein": 68,
+        "orderAs": "Half Chicken (roasted) → Steamed Broccoli, Thai Bok Choy & Kimchi"
+      },
+      {
+        "name": "Grilled Shrimp with Broccoli & Bok Choy",
+        "calories": 380,
+        "carbs": 7,
+        "fat": 18,
+        "protein": 44,
+        "orderAs": "Shrimp (grilled) → Simply Prepared or Garlic Herb Chimichurri, Steamed Broccoli, Thai Bok Choy & Kimchi"
+      },
+      {
+        "name": "Grilled Arctic Char with Broccoli & Bok Choy",
+        "calories": 480,
+        "carbs": 7,
+        "fat": 26,
+        "protein": 44,
+        "orderAs": "Arctic Char (grilled) → Simply Prepared or Tzatziki & Mediterranean Rub, Steamed Broccoli, Thai Bok Choy & Kimchi"
+      },
+      {
+        "name": "Caesar Salad with Grilled Chicken (No Croutons)",
+        "calories": 360,
+        "carbs": 4,
+        "fat": 22,
+        "protein": 34,
+        "orderAs": "Classic Caesar Salad → No Croutons, Top with Grilled Chicken"
+      },
+      {
+        "name": "Greek Salad with Grilled Salmon (No Chickpeas)",
+        "calories": 480,
+        "carbs": 8,
+        "fat": 30,
+        "protein": 38,
+        "orderAs": "Greek Salad → No Chickpeas, Top with Grilled Salmon"
+      },
+      {
+        "name": "Shrimp Cocktail (6pc)",
+        "calories": 210,
+        "carbs": 7,
+        "fat": 2,
+        "protein": 36,
+        "orderAs": "Shrimp Cocktail (6 piece) → Use cocktail sauce sparingly or skip it"
+      },
+      {
+        "name": "Tuna Sashimi (3pc)",
+        "calories": 120,
+        "carbs": 0,
+        "fat": 1,
+        "protein": 26,
+        "orderAs": "Sashimi → Maguro (Tuna), 3 pieces, no rice"
+      },
+      {
+        "name": "Tuna Tartare",
+        "calories": 250,
+        "carbs": 6,
+        "fat": 14,
+        "protein": 24,
+        "orderAs": "Tuna Tartare → Skip the rice paper crisps, enjoy with avocado crema and cucumber"
+      },
+      {
+        "name": "Chicken Wings (Garlic Parmesan)",
+        "calories": 460,
+        "carbs": 3,
+        "fat": 32,
+        "protein": 36,
+        "orderAs": "Chicken Wings → Garlic Parmesan with Black Garlic Aioli"
+      },
+      {
+        "name": "Organic Mussels (No Bread)",
+        "calories": 360,
+        "carbs": 8,
+        "fat": 16,
+        "protein": 42,
+        "orderAs": "Mussels, Organic → PEI garlic-butter broth, white wine, skip the grilled bread"
+      },
+      {
+        "name": "Farmers Omelet (No Home Fries) — Brunch",
+        "calories": 520,
+        "carbs": 2,
+        "fat": 40,
+        "protein": 36,
+        "orderAs": "Farmers Omelet → Bacon, Sausage, Cheddar, No Home Fries (sub side of bacon if hungry)"
+      },
+      {
+        "name": "Cajun Shrimp Omelet (No Home Fries) — Brunch",
+        "calories": 430,
+        "carbs": 6,
+        "fat": 28,
+        "protein": 34,
+        "orderAs": "Cajun Shrimp Omelet → Cherry Tomatoes, Avocado, Spinach, Peppers, Feta, No Home Fries"
+      },
+      {
+        "name": "All American Breakfast (No Toast, No Home Fries) — Brunch",
+        "calories": 340,
+        "carbs": 1,
+        "fat": 26,
+        "protein": 26,
+        "orderAs": "All American Breakfast → 3 Eggs, Bacon, No Sourdough Toast, No Home Fries"
+      }
+    ],
+    "components": {
+      "note": "Individual proteins and sides for building custom meals via the 'New Legal Experience' format",
+      "items": [
+        {
+          "name": "Grilled Salmon (6oz)",
+          "calories": 350,
+          "carbs": 0,
+          "fat": 20,
+          "protein": 36
+        },
+        {
+          "name": "Seared Yellowfin Tuna (8oz)",
+          "calories": 240,
+          "carbs": 0,
+          "fat": 2,
+          "protein": 52
+        },
+        {
+          "name": "Grilled Shrimp (6oz)",
+          "calories": 180,
+          "carbs": 0,
+          "fat": 3,
+          "protein": 36
+        },
+        {
+          "name": "Grilled Arctic Char (6oz)",
+          "calories": 300,
+          "carbs": 0,
+          "fat": 16,
+          "protein": 36
+        },
+        {
+          "name": "Grilled Rainbow Trout (6oz)",
+          "calories": 280,
+          "carbs": 0,
+          "fat": 14,
+          "protein": 36
+        },
+        {
+          "name": "Seared Cod Loin (6oz)",
+          "calories": 180,
+          "carbs": 0,
+          "fat": 2,
+          "protein": 40
+        },
+        {
+          "name": "Seared Sablefish / Black Cod (6oz)",
+          "calories": 340,
+          "carbs": 0,
+          "fat": 26,
+          "protein": 24
+        },
+        {
+          "name": "Grilled Swordfish Steak (8oz)",
+          "calories": 290,
+          "carbs": 0,
+          "fat": 10,
+          "protein": 48
+        },
+        {
+          "name": "Boneless Ribeye (16oz)",
+          "calories": 900,
+          "carbs": 0,
+          "fat": 64,
+          "protein": 80
+        },
+        {
+          "name": "Sirloin Steak Tips (12oz)",
+          "calories": 500,
+          "carbs": 0,
+          "fat": 24,
+          "protein": 68
+        },
+        {
+          "name": "Half Roasted Chicken",
+          "calories": 600,
+          "carbs": 0,
+          "fat": 36,
+          "protein": 66
+        },
+        {
+          "name": "Steamed Lobster (1.25 lb, meat only)",
+          "calories": 180,
+          "carbs": 0,
+          "fat": 2,
+          "protein": 38
+        },
+        {
+          "name": "Drawn Butter (2 tbsp)",
+          "calories": 200,
+          "carbs": 0,
+          "fat": 22,
+          "protein": 0
+        },
+        {
+          "name": "Steamed Broccoli (side)",
+          "calories": 30,
+          "carbs": 4,
+          "fat": 0,
+          "protein": 3
+        },
+        {
+          "name": "Thai Bok Choy & Kimchi (side)",
+          "calories": 45,
+          "carbs": 3,
+          "fat": 2,
+          "protein": 2
+        },
+        {
+          "name": "Coleslaw (side)",
+          "calories": 100,
+          "carbs": 8,
+          "fat": 7,
+          "protein": 1
+        },
+        {
+          "name": "Lemon Butter & Crispy Capers (flavor)",
+          "calories": 80,
+          "carbs": 1,
+          "fat": 9,
+          "protein": 0
+        },
+        {
+          "name": "Garlic Herb Chimichurri (flavor)",
+          "calories": 60,
+          "carbs": 1,
+          "fat": 6,
+          "protein": 0
+        },
+        {
+          "name": "Cajun Blackened & Hot Butter (flavor)",
+          "calories": 90,
+          "carbs": 1,
+          "fat": 10,
+          "protein": 0
+        },
+        {
+          "name": "Tzatziki & Mediterranean Rub (flavor)",
+          "calories": 40,
+          "carbs": 2,
+          "fat": 3,
+          "protein": 1
+        }
+      ]
+    },
+    "ketoNaturalness": 0.8
   }
 }
