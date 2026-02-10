@@ -2814,5 +2814,101 @@
       }
     ],
     "ketoNaturalness": 0.65
+  },
+  "pokebros": {
+    "chainName": "Poke Bros",
+    "source": "Estimated from Poke Bros official menu (eatpokebros.com), nutrition calculated from standard poke ingredient data",
+    "lastUpdated": "2025-11",
+    "orderTips": [
+      "Always choose the SALAD base instead of white/brown/sushi rice to cut 40-50g carbs",
+      "Best proteins: tuna, salmon, spicy tuna, spicy salmon, shrimp - all zero or near-zero carbs",
+      "Avoid corn, pineapple, and edamame as mix-ins (higher carb)",
+      "Skip sweet soy sauce - use ponzu, wasabi aioli, or sriracha aioli instead",
+      "Skip dry toppings like wonton chips and tempura flakes (breaded carbs) - sesame seeds are fine",
+      "Avocado is your best mix-in: healthy fats and very low net carbs"
+    ],
+    "combos": [
+      {
+        "name": "Salmon Avocado Bowl (Salad Base)",
+        "calories": 380,
+        "carbs": 6,
+        "fat": 22,
+        "protein": 34,
+        "orderAs": "Salad base, salmon, avocado, cucumber, seaweed salad, ginger, ponzu, sesame seeds"
+      },
+      {
+        "name": "Spicy Tuna Bowl (Salad Base)",
+        "calories": 320,
+        "carbs": 5,
+        "fat": 16,
+        "protein": 36,
+        "orderAs": "Salad base, spicy tuna, cucumber, jalapeno, green onion, masago, sriracha aioli, sesame seeds"
+      },
+      {
+        "name": "Tuna & Salmon Combo Bowl (Salad Base)",
+        "calories": 360,
+        "carbs": 5,
+        "fat": 18,
+        "protein": 38,
+        "orderAs": "Salad base, half tuna half salmon, avocado, cucumber, sweet onion, ponzu, wasabi aioli, sesame seeds"
+      },
+      {
+        "name": "Da Kine - Keto Style (Salad Base)",
+        "calories": 290,
+        "carbs": 4,
+        "fat": 12,
+        "protein": 35,
+        "orderAs": "Da Kine signature bowl on salad base instead of rice, no sweet soy, extra ponzu"
+      },
+      {
+        "name": "Johnny Utah - Keto Style (Salad Base)",
+        "calories": 370,
+        "carbs": 6,
+        "fat": 20,
+        "protein": 32,
+        "orderAs": "Johnny Utah signature bowl on salad base instead of rice"
+      },
+      {
+        "name": "Shrimp Avocado Bowl (Salad Base)",
+        "calories": 310,
+        "carbs": 5,
+        "fat": 18,
+        "protein": 28,
+        "orderAs": "Salad base, shrimp, avocado, cucumber, green onion, masago, coconut ginger sauce, sesame seeds"
+      },
+      {
+        "name": "Chicken Power Bowl (Salad Base)",
+        "calories": 340,
+        "carbs": 6,
+        "fat": 16,
+        "protein": 36,
+        "orderAs": "Salad base, chicken, avocado, cucumber, carrot, green onion, sriracha aioli, sesame seeds"
+      },
+      {
+        "name": "Spicy Salmon Bowl (Salad Base)",
+        "calories": 350,
+        "carbs": 5,
+        "fat": 19,
+        "protein": 33,
+        "orderAs": "Salad base, spicy salmon, avocado, jalapeno, cucumber, masago, gochujang, sesame seeds"
+      },
+      {
+        "name": "Spicy Kani Salad (Side)",
+        "calories": 150,
+        "carbs": 4,
+        "fat": 8,
+        "protein": 12,
+        "orderAs": "Spicy Kani Salad as a side or light meal"
+      },
+      {
+        "name": "Seaweed Salad (Side)",
+        "calories": 70,
+        "carbs": 3,
+        "fat": 4,
+        "protein": 2,
+        "orderAs": "Seaweed Salad as a side"
+      }
+    ],
+    "ketoNaturalness": 0.75
   }
 }
