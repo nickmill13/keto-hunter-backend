@@ -2910,5 +2910,218 @@
       }
     ],
     "ketoNaturalness": 0.75
+  },
+  "bajas": {
+    "chainName": "Baja's",
+    "source": "Estimated from bajasrestaurants.com menu descriptions and standard nutrition data",
+    "lastUpdated": "2025-02",
+    "orderTips": [
+      "Order a SALAD BOWL instead of a burrito or tacos — skips the tortilla and rice",
+      "Ask for extra lettuce as your base — replaces rice and beans",
+      "Skip the corn salsa (adds ~5g carbs) — stick with pico de gallo",
+      "Chicken wings (traditional, no breading) are naturally very low carb",
+      "Birria meat without tortillas is protein-rich and keto-friendly — use the consommé for dipping",
+      "Load up on sour cream, cheese, and guacamole — all low-carb and high-fat"
+    ],
+    "combos": [
+      {
+        "name": "Salad Bowl with Chicken",
+        "calories": 380,
+        "carbs": 8,
+        "fat": 22,
+        "protein": 32,
+        "orderAs": "Salad Bowl → Chicken, No Rice, No Beans, Cheese, Sour Cream, Guacamole, Pico de Gallo"
+      },
+      {
+        "name": "Salad Bowl with Steak",
+        "calories": 420,
+        "carbs": 8,
+        "fat": 26,
+        "protein": 34,
+        "orderAs": "Salad Bowl → Steak, No Rice, No Beans, Cheese, Sour Cream, Guacamole, Pico de Gallo"
+      },
+      {
+        "name": "Salad Bowl with Shrimp",
+        "calories": 340,
+        "carbs": 8,
+        "fat": 18,
+        "protein": 30,
+        "orderAs": "Salad Bowl → Shrimp, No Rice, No Beans, Cheese, Sour Cream, Guacamole, Pico de Gallo"
+      },
+      {
+        "name": "Salad Bowl with Carnitas/Pork",
+        "calories": 400,
+        "carbs": 8,
+        "fat": 24,
+        "protein": 30,
+        "orderAs": "Salad Bowl → Pork, No Rice, No Beans, Cheese, Sour Cream, Guacamole, Pico de Gallo"
+      },
+      {
+        "name": "Chicken Wings (8pc, Plain)",
+        "calories": 640,
+        "carbs": 0,
+        "fat": 44,
+        "protein": 56,
+        "orderAs": "Chicken Wings (8 piece) → No sauce or ask for hot sauce on the side"
+      },
+      {
+        "name": "Birria Meat Bowl (No Tortillas)",
+        "calories": 350,
+        "carbs": 4,
+        "fat": 20,
+        "protein": 34,
+        "orderAs": "Birria Tacos → No Tortillas, meat and consommé only, add cheese and sour cream"
+      },
+      {
+        "name": "Quesabirria (Eat the Filling)",
+        "calories": 420,
+        "carbs": 18,
+        "fat": 26,
+        "protein": 30,
+        "orderAs": "Quesabirria → Eat the cheese and meat filling, leave most of the tortilla"
+      },
+      {
+        "name": "Nachos (No Chips, Protein Bowl)",
+        "calories": 380,
+        "carbs": 6,
+        "fat": 28,
+        "protein": 24,
+        "orderAs": "Nachos → Steak or Chicken, No Chips, extra cheese, sour cream, guacamole, jalapeños"
+      },
+      {
+        "name": "Cheese Quesadilla (Filling Only)",
+        "calories": 280,
+        "carbs": 4,
+        "fat": 22,
+        "protein": 16,
+        "orderAs": "Cheese Quesadilla → Eat the melted cheese filling, leave the tortilla"
+      },
+      {
+        "name": "Taco Filling Bowl (Steak)",
+        "calories": 360,
+        "carbs": 6,
+        "fat": 22,
+        "protein": 32,
+        "orderAs": "3 Tacos → No Tortillas, serve filling in a bowl: Steak, Cheese, Pico, Guacamole, Sour Cream"
+      }
+    ],
+    "components": {
+      "note": "Individual ingredient estimates for building custom orders",
+      "items": [
+        {
+          "name": "Chicken (4oz)",
+          "calories": 130,
+          "carbs": 0,
+          "fat": 3,
+          "protein": 26
+        },
+        {
+          "name": "Steak (4oz)",
+          "calories": 180,
+          "carbs": 0,
+          "fat": 9,
+          "protein": 24
+        },
+        {
+          "name": "Pork/Carnitas (4oz)",
+          "calories": 160,
+          "carbs": 0,
+          "fat": 8,
+          "protein": 22
+        },
+        {
+          "name": "Ground Beef (4oz)",
+          "calories": 200,
+          "carbs": 0,
+          "fat": 13,
+          "protein": 20
+        },
+        {
+          "name": "Shrimp (4oz)",
+          "calories": 100,
+          "carbs": 0,
+          "fat": 1,
+          "protein": 22
+        },
+        {
+          "name": "Birria Beef (4oz)",
+          "calories": 200,
+          "carbs": 2,
+          "fat": 12,
+          "protein": 20
+        },
+        {
+          "name": "Monterey Jack Cheese",
+          "calories": 100,
+          "carbs": 1,
+          "fat": 8,
+          "protein": 7
+        },
+        {
+          "name": "Sour Cream (2 tbsp)",
+          "calories": 60,
+          "carbs": 1,
+          "fat": 5,
+          "protein": 1
+        },
+        {
+          "name": "Guacamole (2 tbsp)",
+          "calories": 50,
+          "carbs": 3,
+          "fat": 4,
+          "protein": 1
+        },
+        {
+          "name": "Pico de Gallo (2 tbsp)",
+          "calories": 10,
+          "carbs": 2,
+          "fat": 0,
+          "protein": 0
+        },
+        {
+          "name": "Corn Salsa (2 tbsp)",
+          "calories": 20,
+          "carbs": 5,
+          "fat": 0,
+          "protein": 0
+        },
+        {
+          "name": "Sliced Avocado",
+          "calories": 120,
+          "carbs": 6,
+          "fat": 10,
+          "protein": 2
+        },
+        {
+          "name": "Queso Blanco (2oz)",
+          "calories": 80,
+          "carbs": 2,
+          "fat": 6,
+          "protein": 4
+        },
+        {
+          "name": "Flour Tortilla (1)",
+          "calories": 140,
+          "carbs": 24,
+          "fat": 4,
+          "protein": 3
+        },
+        {
+          "name": "Corn Tortilla (1)",
+          "calories": 60,
+          "carbs": 12,
+          "fat": 1,
+          "protein": 1
+        },
+        {
+          "name": "Jalapeños",
+          "calories": 5,
+          "carbs": 1,
+          "fat": 0,
+          "protein": 0
+        }
+      ]
+    },
+    "ketoNaturalness": 0.4
   }
 }

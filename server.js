@@ -59,7 +59,8 @@ const CHAIN_REGISTRY = {
   'cheesecake factory':   { name: 'The Cheesecake Factory',  menuKey: 'cheesecakefactory', ketoQueries: ['cheesecake factory grilled salmon','cheesecake factory steak','cheesecake factory chicken salad'] },
   'red robin':            { name: 'Red Robin',               menuKey: 'redrobin',          ketoQueries: ['red robin lettuce wrap burger','red robin tavern burger no bun','red robin wedgie burger'] },
   'carrabba':             { name: "Carrabba's Italian Grill",menuKey: 'carrabbas',         ketoQueries: ['carrabbas chicken bryan','carrabbas grilled salmon','carrabbas sirloin marsala'] },
-  'poke bros':            { name: 'Poke Bros',               menuKey: 'pokebros',          ketoQueries: ['poke bros salad base bowl','poke bros salmon avocado bowl','poke bros tuna cucumber bowl'] }
+  'poke bros':            { name: 'Poke Bros',               menuKey: 'pokebros',          ketoQueries: ['poke bros salad base bowl','poke bros salmon avocado bowl','poke bros tuna cucumber bowl'] },
+  'baja':                 { name: "Baja's",                  menuKey: 'bajas',             ketoQueries: ['bajas salad bowl chicken no rice','bajas chicken wings plain','bajas birria meat no tortilla','bajas steak salad bowl'] }
 };
 
 // Derive the chain-menus.json key from a chain's display name
