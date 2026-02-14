@@ -888,11 +888,9 @@ app.get('/api/chain-menu/:restaurantId', async (req, res) => {
       });
     }
     
-    // FALLBACK: Query API Ninjas for chains without manual data
-    const ketoItems = [];
-    
-    for (const item of chainInfo.ketoQueries) {
-      try {
+    // FALLBACK: Query API Ninjas for chains without manual data (parallelized)
+    const results = await Promise.allSettled(
+      chainInfo.ketoQueries.map(async (item) => {
         const response = await axios.get(
           `https://api.api-ninjas.com/v1/nutrition?query=${encodeURIComponent(item)}`,
           {
@@ -901,25 +899,32 @@ app.get('/api/chain-menu/:restaurantId', async (req, res) => {
             }
           }
         );
-        
-        if (response.data && response.data.length > 0) {
-          const itemData = response.data[0];
-          const carbs = itemData.carbohydrates_total_g || 0;
-          
-          // Only include if reasonably low carb (< 20g)
-          if (carbs < 20) {
-            ketoItems.push({
-              name: item,
-              carbs: Math.round(carbs * 10) / 10,
-              protein: Math.round((itemData.protein_g || 0) * 10) / 10,
-              fat: Math.round((itemData.fat_total_g || 0) * 10) / 10,
-              calories: Math.round(itemData.calories || 0),
-              verified: true
-            });
-          }
+        return { item, data: response.data };
+      })
+    );
+
+    const ketoItems = [];
+    for (const result of results) {
+      if (result.status === 'rejected') {
+        console.error(`Error fetching nutrition data:`, result.reason?.message);
+        continue;
+      }
+      const { item, data } = result.value;
+      if (data && data.length > 0) {
+        const itemData = data[0];
+        const carbs = itemData.carbohydrates_total_g || 0;
+
+        // Only include if reasonably low carb (< 20g)
+        if (carbs < 20) {
+          ketoItems.push({
+            name: item,
+            carbs: Math.round(carbs * 10) / 10,
+            protein: Math.round((itemData.protein_g || 0) * 10) / 10,
+            fat: Math.round((itemData.fat_total_g || 0) * 10) / 10,
+            calories: Math.round(itemData.calories || 0),
+            verified: true
+          });
         }
-      } catch (error) {
-        console.error(`Error fetching ${item}:`, error.message);
       }
     }
     
