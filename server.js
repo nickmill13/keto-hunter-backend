@@ -115,6 +115,7 @@ app.use(require('./routes/search')({ scoring }));
 app.use(require('./routes/reviews')({ db, requireAuth }));
 app.use(require('./routes/signals')({ db, requireAuth, scoring, reviewAnalysis, chainMenuData }));
 app.use(require('./routes/menu')({ scoring, openai, chainMenuData, localMenuVerified, reviewAnalysis }));
+app.use(require('./routes/favorites')({ db, requireAuth }));
 
 // Initialize database on startup
 if (db.initDatabase) {

@@ -58,6 +58,19 @@ async function initDatabase() {
       await pool.query(`ALTER TABLE restaurant_signals DROP COLUMN IF EXISTS ${col}`);
     }
 
+    // Favorite restaurants table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS favorite_restaurants (
+        id SERIAL PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL,
+        restaurant_id VARCHAR(255) NOT NULL,
+        restaurant_name VARCHAR(255) NOT NULL,
+        restaurant_data JSONB,
+        created_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(user_id, restaurant_id)
+      )
+    `);
+
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Database initialization error:', error);
@@ -237,6 +250,45 @@ async function upsertRestaurantSignals(restaurantId, signals) {
   return result.rows[0];
 }
 
+// Add a favorite restaurant
+async function addFavorite(userId, restaurantId, restaurantName, restaurantData) {
+  const result = await pool.query(
+    `INSERT INTO favorite_restaurants (user_id, restaurant_id, restaurant_name, restaurant_data)
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT (user_id, restaurant_id) DO NOTHING
+     RETURNING *`,
+    [userId, restaurantId, restaurantName, JSON.stringify(restaurantData)]
+  );
+  return result.rows[0];
+}
+
+// Remove a favorite restaurant
+async function removeFavorite(userId, restaurantId) {
+  const result = await pool.query(
+    `DELETE FROM favorite_restaurants WHERE user_id = $1 AND restaurant_id = $2 RETURNING *`,
+    [userId, restaurantId]
+  );
+  return result.rows[0];
+}
+
+// Get all favorites for a user
+async function getUserFavorites(userId) {
+  const result = await pool.query(
+    `SELECT * FROM favorite_restaurants WHERE user_id = $1 ORDER BY created_at DESC`,
+    [userId]
+  );
+  return result.rows;
+}
+
+// Check if a restaurant is favorited by a user
+async function isFavorite(userId, restaurantId) {
+  const result = await pool.query(
+    `SELECT 1 FROM favorite_restaurants WHERE user_id = $1 AND restaurant_id = $2`,
+    [userId, restaurantId]
+  );
+  return result.rows.length > 0;
+}
+
 module.exports = {
   initDatabase,
   saveReview,
@@ -247,5 +299,9 @@ module.exports = {
   getReviewCount,
   getAverageKetoRating,
   getRestaurantSignals,
-  upsertRestaurantSignals
+  upsertRestaurantSignals,
+  addFavorite,
+  removeFavorite,
+  getUserFavorites,
+  isFavorite
 };
