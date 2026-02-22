@@ -32,7 +32,8 @@ function createRouter({ scoring }) {
         lng: place.location.longitude,
         ketoScore: scoring.calculateKetoScore(place),
         diningOptions: scoring.getDiningOptions(place),
-        isChain: scoring.detectChain(name) !== null
+        isChain: scoring.detectChain(name) !== null,
+        dietaryTags: scoring.getDietaryTags(cuisine)
       };
     });
 
